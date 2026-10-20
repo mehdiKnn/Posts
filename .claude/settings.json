@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node render.mjs:*)",
+      "Bash(node verifier.mjs:*)",
+      "Bash(python3 voix.py:*)",
+      "Bash(elevenlabs speech-to-text convert:*)",
+      "Bash(ffmpeg:*)",
+      "Bash(ffprobe:*)"
+    ]
+  }
+}

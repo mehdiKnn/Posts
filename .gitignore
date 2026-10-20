@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+__pycache__/
+# Les vidéos produites restent sur la machine de chacun ; seul le gabarit est partagé.
+videos/*
+!videos/race-condition/

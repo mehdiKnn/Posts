@@ -1,0 +1,9 @@
+{
+  "name": "video-courte",
+  "private": true,
+  "type": "module",
+  "description": "Vidéos courtes verticales qui vulgarisent un concept tech, produites par des agents Claude Code",
+  "dependencies": {
+    "playwright-core": "1.63.0"
+  }
+}
