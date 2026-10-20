@@ -10,7 +10,7 @@ La mascotte de la thématique fait cours sur une feuille à petits carreaux qui 
   2. **Mécanisme** : la mascotte réfute l'idée fausse dès ses premiers mots, et le schéma se dessine sur la feuille, comme tracé au feutre : il montre le mécanisme, et pourquoi l'idée fausse ne tient pas.
   3. **Relance**, facultative : l'élève pose la question qui mène à la solution (« Et on fait comment ? »).
   4. **Solution** : le même schéma, modifié.
-  5. **À retenir** : la mascotte tape le mot-clé sur la feuille avec sa baguette.
+  5. **À retenir** : la mascotte énonce la règle, et le schéma la montre une dernière fois, sans texte ajouté.
 
 ## Règles
 
@@ -43,4 +43,4 @@ Environ 38 s et 85 mots, un seul dispositif (la collision en écran partagé). L
 | Mécanisme (3–18 s) | Mascotte : « Pas forcément. Il reste une place de concert. Alice et Bob cliquent en même temps. Les deux lisent "1 place", les deux achètent : deux billets vendus. Le résultat dépend de qui passe en premier. » | Le schéma se dessine : un écran partagé Alice / Bob, les deux achats percutent le même billet, qui se dédouble. |
 | Relance (18–21 s) | Élève : « Et on fait comment ? » | La taupe écoute, bouche fermée ; le schéma revient à zéro. |
 | Solution (21–33 s) | Mascotte : « On pose un verrou : un seul achat à la fois. Bob attend qu'Alice ait fini, et il voit "complet". » | Même schéma : un verrou se ferme côté Alice, Bob patiente, son écran passe à « complet ». |
-| À retenir (33–38 s) | Mascotte : « Donnée partagée, accès simultané : verrou. » | La baguette tape « verrou » sur la feuille. |
+| À retenir (33–38 s) | Mascotte : « Donnée partagée, accès simultané : verrou. » | Le verrou se referme une dernière fois côté Alice. |

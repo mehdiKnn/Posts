@@ -1,7 +1,7 @@
 // node verifier.mjs videos/deadlock → JSON des contrôles mesurables, selon les fichiers présents dans le dossier :
 //   dialogue.json : mots et durée estimée ; storyboard.md : repères de synchro ;
 //   voix-align.js : durée réelle, ouverture et débit réel de chaque voix ;
-//   index.html : couleurs hors charte, zones sûres, textes trop petits, temps morts du schéma, gestes qui se chevauchent,
+//   index.html : couleurs hors charte, zones sûres, emprise du schéma, textes trop petits, temps morts du schéma, gestes qui se chevauchent,
 //   repères de cue() ;
 //   video.mp4 : fiche technique. La partie page passe par playwright-core (npm install), comme render.mjs.
 import { readFileSync, existsSync, statSync } from 'node:fs'
@@ -13,7 +13,8 @@ const DEBIT = { taupe: 2.3, eleve: 3.3 }
 const BLANC = 0.45
 const BORNES = [30, 45]
 const OUVERTURE = 3  // secondes au plus pour l'idée fausse de l'élève
-const ZONE = { haut: 250, bas: 1920 - 440, droite: 1080 - 120, gauche: 0 }
+const ZONE = { haut: 250, bas: 1650, droite: 1000, gauche: 80, boutons: { x: 900, y: 1270 } }
+const SCHEMA_MIN = { largeur: 736, hauteur: 432 }  // 80 % de la bande du schéma, mesurés sur la dernière image
 const POLICE_MIN = 48
 const TEMPS_MORT = 3  // secondes où le schéma ne bouge pas pendant la voix
 // Deux éléments lancés à moins de ECART secondes l'un de l'autre font un seul geste (un billet et sa traînée,
@@ -96,7 +97,7 @@ if (html && voixAlign) {
   await page.goto(pathToFileURL(`${dir}/index.html`) + '?render')
   try {
     await page.waitForFunction(() => window.ready, null, { timeout: 30000 })
-    Object.assign(out.page, await page.evaluate(mesurer, { ZONE, POLICE_MIN, TEMPS_MORT, ECART, PAS }))
+    Object.assign(out.page, await page.evaluate(mesurer, { ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }))
   } catch (e) {
     out.page.erreurs = erreurs.length ? erreurs : [e.message]
   }
@@ -121,10 +122,10 @@ if (existsSync(`${dir}/video.mp4`)) {
 console.log(JSON.stringify(out, null, 1))
 
 // Dans la page : parcourt la timeline tous les PAS secondes, la mascotte mise à part (sa place est fixée par animation.md).
-function mesurer({ ZONE, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
+function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
   const r1 = x => Math.round(x * 10) / 10, r2 = x => Math.round(x * 100) / 100
   const dit = s => s.replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim()
-  const cam = document.querySelector('#cam'), taupe = document.querySelector('#taupe')
+  const cam = document.querySelector('#cam'), taupe = document.querySelector('#taupe'), schema = document.querySelector('#schema')
   const nom = e => { const p = e.closest('[id]'); return (p ? `#${p.id} ` : '') + e.tagName.toLowerCase() }
   const formes = [...cam.querySelectorAll('path, rect, circle, ellipse, line, polyline, polygon, text, image')]
     .filter(e => !e.closest('#taupe, defs, clipPath'))
@@ -156,6 +157,7 @@ function mesurer({ ZONE, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
 
   // Les acteurs : les éléments nommés les plus fins (un coffre, une flèche, le titre), hors mascotte. Le tremblement,
   // posé sur leur conteneur, n'en fait bouger aucun.
+  let u = null  // le cadre du schéma visible ; à la dernière image, le schéma complet
   const acteurs = [...cam.querySelectorAll('[id]')].filter(e => !e.closest('#taupe') && !e.querySelector('[id]'))
   const chevauchements = [], lance = new Map()  // acteur en mouvement → instant où il s'est mis à bouger
   let avant = null
@@ -172,10 +174,13 @@ function mesurer({ ZONE, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
     nouveaux.forEach(e => lance.set(e, t))
     const enCours = bougent.filter(e => lance.get(e) <= t - ECART)
     if (nouveaux.length && enCours.length) chevauchements.push({ t, demarrent: nouveaux.map(e => '#' + e.id), bougent_encore: enCours.map(e => '#' + e.id) })
+    u = null
     for (const e of [...formes, ...textes]) {
       if (!visible(e)) continue
       const b = cadre(e)
-      const ecarts = { haut: ZONE.haut - b.top, bas: b.bottom - ZONE.bas, droite: b.right - ZONE.droite, gauche: ZONE.gauche - b.left }
+      if (schema?.contains(e)) u = u ? { top: Math.min(u.top, b.top), bottom: Math.max(u.bottom, b.bottom), left: Math.min(u.left, b.left), right: Math.max(u.right, b.right) } : b
+      const ecarts = { haut: ZONE.haut - b.top, bas: b.bottom - ZONE.bas, droite: b.right - ZONE.droite, gauche: ZONE.gauche - b.left,
+        boutons: Math.min(b.right - ZONE.boutons.x, b.bottom - ZONE.boutons.y) }
       for (const [cote, px] of Object.entries(ecarts)) {
         if (px < 0.5) continue
         const h = (hors[nom(e) + cote] ??= { element: nom(e), cote, px: 0, de: t })
@@ -185,8 +190,12 @@ function mesurer({ ZONE, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
     }
     etats.push(cam.outerHTML.replace(taupe.outerHTML, ''))
   }
+  const emprise = { largeur: u ? Math.round(u.right - u.left) : 0, hauteur: u ? Math.round(u.bottom - u.top) : 0 }
+  const emprise_du_schema = !schema ? "la page n'a pas de #schema : reprendre la structure du gabarit"
+    : emprise.largeur < SCHEMA_MIN.largeur || emprise.hauteur < SCHEMA_MIN.hauteur
+      ? { ...emprise, probleme: `sous ${SCHEMA_MIN.largeur} × ${SCHEMA_MIN.hauteur} px : le schéma ne remplit pas sa zone` } : emprise
 
-  // Temps morts : le schéma (titre et mot-clé compris) ne change pas pendant que la voix parle.
+  // Temps morts : le schéma (titre compris) ne change pas pendant que la voix parle.
   const temps_morts = []
   for (let debut = 0, k = 1; k <= etats.length; k++) {
     if (k < etats.length && etats[k] === etats[k - 1]) continue
@@ -209,5 +218,5 @@ function mesurer({ ZONE, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
     return { mot, t: r2(t), phrase: dit(s.slice(a, b + 1)) }
   }) : "la page n'expose pas window.REPERES : reprendre la fonction cue() du gabarit"
 
-  return { duree: r2(duree), reperes, hors_zone: Object.values(hors), polices_sous_48: polices, temps_morts, gestes_qui_se_chevauchent: chevauchements }
+  return { duree: r2(duree), reperes, hors_zone: Object.values(hors), emprise_du_schema, polices_sous_48: polices, temps_morts, gestes_qui_se_chevauchent: chevauchements }
 }

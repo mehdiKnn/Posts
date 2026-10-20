@@ -52,7 +52,8 @@ L'utilisateur donne le sujet ; le workflow `video-courte-afk` (`.claude/workflow
 - [ ] Un seul mouvement à la fois (sauf la collision), assez lent pour être vu ; seul bouge ce qui sert le concept
 - [ ] Un seul exemple ; chaque phrase sert le concept ou cet exemple
 - [ ] Code simpliste, 4 lignes au plus
-- [ ] À l'écran, seulement le texte nécessaire (le sujet, les mots-clés, le code) ; il entre une fois et reste immobile
+- [ ] À l'écran, seulement le texte nécessaire (le sujet, les valeurs du schéma, le code) ; il entre une fois et reste immobile
+- [ ] Le schéma remplit sa zone ; tout tient dans les zones sûres ([animation.md](animation.md))
 - [ ] Chaque texte est net à chaque image
 - [ ] Univers, couleurs et mascotte conformes à la charte
 - [ ] Voix natives, validées à l'écoute
