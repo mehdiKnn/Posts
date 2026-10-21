@@ -7,14 +7,14 @@ La mascotte de la thématique fait cours sur une feuille à petits carreaux qui 
 - **Durée** : 30 à 45 s. Le nombre de mots en découle : durée × débit des voix, noté dans la [charte](charte.md). Avec la taupe (2,3 mots/s), environ 70 à 100 mots.
 - **Beats**, 5 au plus :
   1. **Idée fausse** (3 s au plus) : l'élève avance, en question, l'idée fausse qu'on se fait du sujet (« M'sieur, il suffit pas de… ? »). La mascotte est sur la feuille, le sujet y est écrit.
-  2. **Mécanisme** : la mascotte réfute l'idée fausse dès ses premiers mots, et le schéma se dessine sur la feuille, comme tracé au feutre : il montre le mécanisme, et pourquoi l'idée fausse ne tient pas.
+  2. **Mécanisme** : la mascotte réfute l'idée fausse dès ses premiers mots, et le schéma se construit sur la feuille, autocollants posés et traits tracés au feutre : il montre le mécanisme, et pourquoi l'idée fausse ne tient pas.
   3. **Relance**, facultative : l'élève pose la question qui mène à la solution (« Et on fait comment ? »).
   4. **Solution** : le même schéma, modifié.
   5. **À retenir** : la mascotte énonce la règle, et le schéma la montre une dernière fois, sans texte ajouté.
 
 ## Règles
 
-- **L'idée fausse d'abord.** L'élève énonce l'erreur que ferait un dev débutant, plausible et précise ; la mascotte la réfute, puis explique. Une vidéo qui réfute une idée fausse, ou qui suit un dialogue, fait mieux apprendre qu'un exposé clair, qui peut même conforter l'erreur ([sources](sources.md)). Cette réplique est l'accroche : elle se dit en 3 s au plus, sans préambule.
+- **L'idée fausse d'abord.** L'élève énonce l'erreur que ferait un dev débutant, plausible et précise ; la mascotte la réfute, puis explique. Une vidéo qui réfute une idée fausse, ou qui suit un dialogue, fait mieux apprendre qu'un exposé clair, qui peut même conforter l'erreur ([sources](sources.md)). Cette réplique est l'accroche : elle se dit en 3 s au plus, sans préambule. Elle se comprend seule, sans aucun contexte : elle parle de la situation générale (« chercher un client par son nom »), et chaque élément de l'exemple (un nom, une valeur) entre ensuite par la bouche de la mascotte, qui le présente (« On cherche Léa parmi un million de clients »).
 - **Une info, une fois.** Chaque beat apporte du nouveau, et chaque chose se raconte une seule fois, sous une seule forme.
 - **Le moment clé.** Le mécanisme tient en une image décisive : l'instant où tout bascule. Une séquence, quand elle est indispensable, tient en 3 étapes au plus, montrées en une seule passe.
 - **L'image suit la voix.** À chaque instant, l'image montre ce que dit la phrase. Une action dite (un paiement, une requête, un envoi) se voit comme un mouvement, sur le mot qui la dit ; ce mouvement est éphémère : il apparaît, fait son trajet, puis s'efface. Seul l'état durable reste à l'écran (un verrou tenu, une donnée écrite). Un objet apparaît quand la voix le nomme.
@@ -39,8 +39,8 @@ Environ 38 s et 85 mots, un seul dispositif (la collision en écran partagé). L
 
 | Beat | Voix | Image |
 |---|---|---|
-| Idée fausse (0–3 s) | Élève : « M'sieur, le site vend la dernière place au premier qui clique, non ? » | La taupe sur la feuille, « Race condition » écrit en haut. |
+| Idée fausse (0–3 s) | Élève : « M'sieur, le site vend la dernière place au premier qui clique, non ? » | La taupe écoute, la feuille est vide : rien ne bouge avant qu'elle parle. |
 | Mécanisme (3–18 s) | Mascotte : « Pas forcément. Il reste une place de concert. Alice et Bob cliquent en même temps. Les deux lisent "1 place", les deux achètent : deux billets vendus. Le résultat dépend de qui passe en premier. » | Le schéma se dessine : un écran partagé Alice / Bob, les deux achats percutent le même billet, qui se dédouble. |
-| Relance (18–21 s) | Élève : « Et on fait comment ? » | La taupe écoute, bouche fermée ; le schéma revient à zéro. |
+| Relance (18–21 s) | Élève : « Et on fait comment ? » | La taupe écoute, bouche fermée ; le schéma revient à son état de départ : ce que la solution réutilise reste, le reste part. |
 | Solution (21–33 s) | Mascotte : « On pose un verrou : un seul achat à la fois. Bob attend qu'Alice ait fini, et il voit "complet". » | Même schéma : un verrou se ferme côté Alice, Bob patiente, son écran passe à « complet ». |
 | À retenir (33–38 s) | Mascotte : « Donnée partagée, accès simultané : verrou. » | Le verrou se referme une dernière fois côté Alice. |

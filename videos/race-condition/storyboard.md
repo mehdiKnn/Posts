@@ -18,11 +18,11 @@ Les balises entre crochets vont à la voix, jamais à l'écran.
 
 | Beat | Temps | Voix | Image | Texte à l'écran |
 |---|---|---|---|---|
-| Question | 0–3 s | Réplique 1 | Feuille à carreaux plein écran. « Race condition » écrit en haut, souligné en bleu. La taupe en bas à gauche, l'air las. | « Race condition » |
-| Mécanisme | 3–21 s | Réplique 2 | Le schéma se trace au feutre : deux téléphones en écran partagé (Alice à gauche, Bob à droite), le billet au centre. Sur « cliquent », les deux doigts tapent. Sur « voient une place », les deux écrans affichent « 1 place » en même temps. Sur « achètent », deux flèches bleues foncent sur le billet : collision, le seul tremblement d'écran de la vidéo. Sur « deux billets », le billet se dédouble, le double en rouge. Sur « qui passe en premier », la baguette pointe les deux flèches. | « 1 place » sur les deux écrans |
+| Question | 0–3 s | Réplique 1 | Feuille à carreaux plein écran, vide. La taupe en bas à gauche, l'air las : elle écoute, rien ne bouge. | aucun |
+| Mécanisme | 3–21 s | Réplique 2 | Sur le premier mot de la taupe, « Race condition » s'écrit en haut, puis se souligne en bleu. Le schéma se construit : le billet se colle au centre sur « une place », puis les deux téléphones en écran partagé, Alice à gauche sur son nom, Bob à droite sur le sien. Sur « cliquent », les deux téléphones pulsent ensemble. Sur « voient une place », les deux écrans affichent « 1 place » en même temps. Sur « achètent », deux flèches bleues foncent sur le billet : collision, le seul tremblement d'écran de la vidéo. Sur « deux billets », l'éclat s'efface et un second billet glisse de sous le premier. | « 1 place » sur les deux écrans |
 | Relance | 21–23 s | Réplique 3 | La taupe écoute, bouche fermée, et le schéma revient à zéro. | aucun |
-| Solution | 23–30 s | Réplique 4 | Même schéma, remis à zéro : un cadenas vert se ferme sur le billet côté Alice. La flèche de Bob s'arrête net, en pointillés, et attend. Puis l'écran de Bob passe à « complet », en vert. Le billet reste unique. | « complet » |
-| À retenir | 30–32 s | Réplique 5 | « verrou » s'écrit sous le schéma, surligné en jaune ; la baguette tape dessus. Fin tenue 1,5 s. | « verrou » |
+| Solution | 23–30 s | Réplique 4 | Même schéma, remis à zéro : un cadenas vert se colle, ouvert, sur le billet, puis se ferme en claquant ; la flèche verte d'Alice passe. La flèche de Bob s'arrête net, en pointillés, et attend. Puis l'écran de Bob passe à « complet », en vert. Le billet reste unique. | « complet » |
+| À retenir | 30–32 s | Réplique 5 | Sur « verrou », le cadenas claque une dernière fois. Fin tenue 1,5 s. | aucun |
 
 ## Checklist sur le papier
 
@@ -32,12 +32,13 @@ Les balises entre crochets vont à la voix, jamais à l'écran.
 - [x] Le mécanisme tient en un moment clé (la collision), et la solution réutilise le même schéma
 - [x] Un seul exemple (le concert), aucune anecdote superposée
 - [x] Pas de code
-- [x] Texte limité au sujet, à « 1 place », « complet » et « verrou » ; chacun entre une fois et reste immobile
+- [x] Texte limité au sujet, à « 1 place » et « complet » ; chacun entre une fois et reste immobile. Les sous-titres suivent la voix
 - [x] Aucun effet de distorsion sur le texte
 - [x] Feuille à carreaux, palette Feutres, Handlee, la taupe
 - [x] Voix validées à l'écoute (taupe x1,1, élève x1,0)
 
 ## Visuels prévus
 
-- **Tracés au feutre en SVG** (gratuits, nets, animables trait par trait) : les téléphones, le billet, les flèches, le cadenas, le soulignement.
-- **La taupe** : deux poses découpées dans sa planche de référence. Avec le bâton quand elle parle, bouche fermée et sans bâton quand l'élève parle ; aucune image générée pour cette vidéo.
+- **Autocollants** (une planche, `autocollants/planche.png`) : `telephone` (écran vide, pour Alice et pour Bob ; « 1 place » et « complet » s'y posent en texte), `billet` (crème, étoile bleue), `cadenas-ouvert` et `cadenas-ferme` (le même cadenas vert, anse levée puis baissée).
+- **Tracés au feutre en SVG**, à côté des autocollants sans les toucher : le soulignement du titre, les flèches d'achat, la collision, les coches sous les téléphones, la flèche verte et les pointillés de Bob. Le double du billet est le même autocollant.
+- **La taupe** : deux poses découpées dans sa planche de référence. Avec le bâton quand elle parle, bouche fermée et sans bâton quand l'élève parle.

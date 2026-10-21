@@ -7,11 +7,14 @@
 2. Colle le visage bouche ouverte sur la pose bouche fermée → poses/pointe-ouverte.png
 3. Met toutes les poses à la même échelle, pieds sur la même ligne → sprites/
 """
-from collections import deque
+import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from autocollants import charge, detoure  # le détourage commun aux mascottes et aux autocollants
 
 # Pose : (planche, boîte dans la planche, retourner). « parle » quand la mascotte parle, « neutre » quand l'élève parle.
 DECOUPES = {
@@ -21,24 +24,6 @@ DECOUPES = {
     "pointe-ouverte": ("planche-baton.png", (934, 89, 1260, 533), False),
     "pointe-fermee": ("planche-baton.png", (1188, 73, 1531, 533), False),
 }
-
-
-def charge(f):
-    return np.array(Image.open(f).convert("RGBA")).astype(int)
-
-
-def relie(masque, graines):
-    """Pixels de `masque` reliés à une graine."""
-    h, w = masque.shape
-    vu = graines & masque
-    file = deque(zip(*np.nonzero(vu)))
-    while file:
-        cy, cx = file.popleft()
-        for ny, nx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
-            if 0 <= ny < h and 0 <= nx < w and masque[ny, nx] and not vu[ny, nx]:
-                vu[ny, nx] = True
-                file.append((ny, nx))
-    return vu
 
 
 def mesures(a):
@@ -54,20 +39,7 @@ def mesures(a):
 def decouper():
     Path("poses").mkdir(exist_ok=True)
     for pose, (planche, (x0, y0, x1, y1), retourner) in DECOUPES.items():
-        a = charge(planche)[y0 - 10:y1 + 10, x0 - 10:x1 + 10].copy()
-        # Fond : le blanc relié au bord de la découpe (les blancs intérieurs, cernés de noir, restent).
-        blanc = a[..., :3].min(-1) > 235
-        bord = np.zeros_like(blanc)
-        bord[0, :] = bord[-1, :] = bord[:, 0] = bord[:, -1] = True
-        fond = relie(blanc, bord)
-        # Un morceau de figure voisine pris dans la boîte touche le bord de la découpe : il part avec le fond.
-        fond |= relie(~fond, bord)
-        a[..., 3][fond] = 0
-        # Contour adouci : les pixels clairs au bord du fond deviennent semi-transparents.
-        lum = a[..., :3].mean(-1)
-        voisin = np.array(Image.fromarray((fond * 255).astype("uint8")).filter(ImageFilter.MaxFilter(3))) > 0
-        frange = voisin & ~fond & (lum > 180)
-        a[..., 3][frange] = np.clip((255 - lum[frange]) * 255 / 75, 0, 255)
+        a = detoure(charge(planche)[y0 - 10:y1 + 10, x0 - 10:x1 + 10].copy())
         im = Image.fromarray(a.astype("uint8"))
         if retourner:
             im = im.transpose(Image.FLIP_LEFT_RIGHT)
