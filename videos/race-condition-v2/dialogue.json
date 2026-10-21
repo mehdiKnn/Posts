@@ -1,0 +1,9 @@
+{
+  "repliques": [
+    { "qui": "eleve", "texte": "M'sieur… c'est quoi, une race condition ?" },
+    { "qui": "taupe", "texte": "[sighs] Il reste une place de concert. Alice et Bob cliquent en même temps. Les deux voient « une place »… les deux achètent. Le site vérifie, puis il vend : entre les deux, l'autre s'est glissé. Deux billets, une seule place. [deadpan] Voilà une race condition : le résultat dépend de qui passe en premier." },
+    { "qui": "eleve", "texte": "Et… on fait comment ?" },
+    { "qui": "taupe", "texte": "On pose un verrou : vérifier et vendre deviennent un seul geste. Alice achète, Bob attend… [deadpan] et il voit « complet »." },
+    { "qui": "taupe", "texte": "Donnée partagée, accès simultané… verrou." }
+  ]
+}
