@@ -15,6 +15,8 @@ La mascotte de la thématique fait cours sur une feuille à petits carreaux qui 
 ## Règles
 
 - **L'idée fausse d'abord.** L'élève énonce l'erreur que ferait un dev débutant, plausible et précise ; la mascotte la réfute, puis explique. Une vidéo qui réfute une idée fausse, ou qui suit un dialogue, fait mieux apprendre qu'un exposé clair, qui peut même conforter l'erreur ([sources](sources.md)). Cette réplique est l'accroche : elle se dit en 3 s au plus, sans préambule.
+- **L'accroche se choisit.** Le scénariste écrit trois formulations de la première réplique de l'élève (une question, une affirmation fausse, un « M'sieur, c'est pas… ? »), dit en une ligne laquelle il retient et pourquoi, et garde les deux autres dans `script.md` : si la vidéo ne retient pas, on ressort la suivante. Les trois partent de l'idée fausse du dossier.
+- **La fin boucle.** La règle finale se dit, puis la feuille se vide et la signature s'écrit : la dernière image est la feuille vide de la première, la vidéo reprend sans à-coup.
 - **Une info, une fois.** Chaque beat apporte du nouveau, et chaque chose se raconte une seule fois, sous une seule forme.
 - **Le moment clé.** Le mécanisme tient en une image décisive : l'instant où tout bascule. Une séquence, quand elle est indispensable, tient en 3 étapes au plus, montrées en une seule passe.
 - **L'image suit la voix.** À chaque instant, l'image montre ce que dit la phrase. Une action dite (un paiement, une requête, un envoi) se voit comme un mouvement, sur le mot qui la dit ; ce mouvement est éphémère : il apparaît, fait son trajet, puis s'efface. Seul l'état durable reste à l'écran (un verrou tenu, une donnée écrite). Un objet apparaît quand la voix le nomme.

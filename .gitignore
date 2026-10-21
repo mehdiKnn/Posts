@@ -4,3 +4,9 @@ __pycache__/
 # Les vidéos produites restent sur la machine de chacun ; seul le gabarit est partagé.
 videos/*
 !videos/race-condition/
+!videos/race-condition-v2/
+# Les contrôles se refont à la demande.
+videos/race-condition-v2/captures.png
+videos/race-condition-v2/sequences/
+videos/race-condition-v2/controle.png
+videos/race-condition-v2/shot-*.png

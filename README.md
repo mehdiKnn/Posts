@@ -2,7 +2,7 @@
 
 Des vidéos verticales de 30 à 45 s (Reels, Shorts, TikTok) qui vulgarisent un concept tech. Une mascotte fait cours sur une feuille à petits carreaux, un élève hors champ l'interpelle, le schéma se trace au feutre en suivant la voix.
 
-Tout se pilote depuis Claude Code : des agents écrivent le script, le storyboard, la voix, l'animation, puis exportent la vidéo. Exemple de rendu : `videos/race-condition/video.mp4`.
+Tout se pilote depuis Claude Code : des agents écrivent le script, le storyboard, la voix, l'animation, puis exportent la vidéo. Exemples de rendu : `videos/race-condition/video.mp4` (la première version) et `videos/race-condition-v2/video.mp4` (la même vidéo avec la nouvelle chaîne : sous-titres, bruitages, signature, boucle).
 
 ## Installer
 
@@ -39,9 +39,20 @@ Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `v
 | `.claude/skills/video-courte/` | Les règles : format, script, texte à l'écran, animation, charte, voix, et les sources qui les fondent. |
 | `.claude/agents/` | Un agent par étape (scénariste, storyboarder, voix, animateur, monteur), plus le critique et le suivi du mode AFK. |
 | `.claude/workflows/video-courte-afk.js` | Le mode AFK. |
-| `render.mjs` | Export de la vidéo, captures et séquences de contrôle. |
-| `verifier.mjs` | Les contrôles mesurables : durée, débit, repères, couleurs, zones sûres, temps morts, fiche technique. |
+| `lib/` | La scène commune (`stage.css`, `stage.js`), les dispositifs de schéma réutilisables (`dispositifs/`) et les bruitages (`sfx/`). Une vidéo n'écrit que son titre, son dispositif et ses repères. |
+| `render.mjs` | Export de la vidéo (voix et bruitages mixés, −14 LUFS), couverture, captures et séquences de contrôle (avec, au choix, ce que l'interface d'Instagram couvre). |
+| `verifier.mjs` | Les contrôles mesurables : durée, débit, repères, couleurs, zones sûres, sous-titres, bruitages, signature, temps morts, fiche technique. |
 | `voix.py` | Génère le dialogue à deux voix, avec l'horodatage qui cale l'animation. |
 | `charte/`, `mascottes/` | L'univers visuel, la mascotte et ses poses. |
 
 Une nouvelle thématique demande sa mascotte : planche générée avec GPT Image via SeamUI, voix créée avec ElevenLabs. Le skill décrit la marche à suivre (`charte.md`, `visuels.md`, `voix.md`).
+
+## Ce qui a changé (v2)
+
+- **Un dossier et un expert avant la voix.** L'agent `chercheur` prépare la matière exacte du sujet (`dossier.md`) ; l'agent `expert` relit le dialogue contre elle et classe chaque affirmation : un « faux » ou un « trompeur » repart au scénariste avant que la voix ne soit payée.
+- **Des briques de schéma.** `lib/dispositifs/collision.js` écrit un schéma entier et pose ses gestes sur les mots de la voix : la page ne donne que les mots.
+- **Sous-titres, bruitages, signature, boucle, couverture** dans toutes les vidéos (voir `animation.md` et `texte.md`).
+- **Les résultats d'abord mesurés.** `resultats.md` : après publication, on note la rétention et on corrige les règles sur des chiffres.
+- Le mode AFK fait la voix pendant le storyboard (elles ne dépendent que du dialogue) et rend l'exactitude de la vidéo dans son bilan.
+
+Sans ffmpeg ni ffprobe dans le PATH : les variables `FFMPEG` et `FFPROBE` les désignent (idem `PW` pour `playwright-core`).

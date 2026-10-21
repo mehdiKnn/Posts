@@ -11,12 +11,12 @@ Avant de coder, lis :
 - `.claude/skills/video-courte/animation.md`, `texte.md` et `charte.md` ;
 - `videos/<sujet>/storyboard.md`, `videos/<sujet>/dialogue.json` et `videos/<sujet>/etapes.md` ;
 - de `voix-align.js`, seulement les répliques et leurs temps : `python3 -c "import json; a = json.loads(open('videos/<sujet>/voix-align.js').read().split('=', 1)[1]); print(json.dumps(a['repliques'], ensure_ascii=False))"`. Le reste du fichier (texte et horodatage par caractère) sert à `cue()` dans la page ; les repères se choisissent sur les mots du dialogue ;
-- le gabarit `videos/race-condition/index.html`, et aucune autre vidéo : le gabarit suffit, et chaque fichier lu alourdit tous les tours suivants.
+- le gabarit `videos/race-condition-v2/index.html` et, si le storyboard nomme une brique, `lib/dispositifs/<nom>.js` : le gabarit suffit, et chaque fichier lu alourdit tous les tours suivants. Ne lis pas `lib/stage.js` en entier : l'en-tête et les noms de ses fonctions suffisent.
 
-Construis `videos/<sujet>/index.html` à partir du gabarit : même structure (feuille en CSS, schéma SVG dans `#schema`, `trace()`, `cue()`, poses selon qui parle, `seekTo`), avec le schéma et les repères du storyboard. Garde la fonction `cue()` du gabarit telle quelle : elle note chaque repère dans `window.REPERES`, que lisent les contrôles. Les poses de la mascotte viennent de `mascottes/<nom>/sprites/`.
+Construis `videos/<sujet>/index.html` à partir du gabarit : le titre, le dispositif (la brique de `lib/dispositifs/` avec les mots de la voix, ou le SVG écrit dans la page avec les gestes de `lib/stage.js`), `signature()`, `finir()`, `mascotte()`, `sousTitres()` et `demarrer()`. N'écris pas la machinerie : elle est dans `lib/`. Chaque geste qui appelle un bruitage le range avec `son()`. Donne l'instant de la couverture dans `window.COUVERTURE`. Les poses de la mascotte viennent de `mascottes/<nom>/sprites/`.
 
 **Contrôle avant de rendre.** Depuis le dossier du projet :
-- `node render.mjs videos/<sujet> controle` écrit la planche `captures.png`, une image par repère, et `sequences/`, une image par repère avec quatre instants (juste avant, puis +0,2, +0,5 et +1 s) pour juger le mouvement ;
+- `node render.mjs videos/<sujet> controle masque` écrit la planche `captures.png`, une image par repère, et `sequences/`, une image par repère avec quatre instants (juste avant, puis +0,2, +0,5 et +1 s) pour juger le mouvement ;
 - `node verifier.mjs videos/<sujet>` relève les couleurs hors charte, les éléments hors des zones sûres, les textes sous 48 px, les temps morts du schéma pendant la voix et les gestes qui se chevauchent.
 
 Regarde la planche et les séquences (elles suffisent : un zoom ou une capture de plus seulement pour lever un doute précis), puis corrige ce que relève le vérificateur et ce qui contredit le storyboard, la charte ou `texte.md` : chevauchements, élément visible avant son heure, image qui ne montre pas ce que dit la voix.
