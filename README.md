@@ -17,7 +17,7 @@ pip3 install numpy pillow        # la découpe des autocollants
 
 Les autocollants de chaque vidéo se génèrent avec GPT Image via SeamUI : connecte le serveur MCP de SeamUI à Claude Code, avec une clé OpenAI dans ton espace de travail SeamUI.
 
-Les voix de la taupe et de l'élève vivent dans l'espace de travail ElevenLabs de l'équipe (identifiants dans `.claude/skills/video-courte/charte.md` et `voix.py`). Sans invitation à cet espace, `voix.py` ne les trouve pas : demande-la avant ta première vidéo.
+Les voix de la taupe, du caméléon et de l'élève vivent dans l'espace de travail ElevenLabs de l'équipe (identifiants dans `.claude/skills/video-courte/charte.md` et `voix.py`). Sans invitation à cet espace, `voix.py` ne les trouve pas : demande-la avant ta première vidéo.
 
 ## Produire une vidéo
 
@@ -43,6 +43,7 @@ Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `v
 | `.claude/skills/video-courte/` | Les règles : format, script, texte à l'écran, animation, charte, voix, et les sources qui les fondent. |
 | `.claude/agents/` | Un agent par étape (scénariste, storyboarder, illustrateur, voix, animateur, monteur), plus le critique et le suivi du mode AFK. |
 | `.claude/workflows/video-courte-afk.js` | Le mode AFK. |
+| `planning.md` | Le rythme de publication, la production qu'il demande, le calendrier, les sujets et la revue du dimanche. |
 | `render.mjs` | Export de la vidéo (voix et bruitages mixés), captures et séquences de contrôle. |
 | `charte/autocollants/` | Les autocollants communs à toutes les vidéos : la carte de fin (cœur « Like », « + » « Abonne-toi »). |
 | `sons/` | Les bruitages des gestes, partagés par toutes les vidéos ; `sh sons/generer.sh` les régénère chez ElevenLabs. |

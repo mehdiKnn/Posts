@@ -12,6 +12,6 @@ Avant d'exporter, lis `.claude/skills/video-courte/animation.md` (export) et `vi
 Depuis le dossier du projet :
 1. **Export** : `node render.mjs videos/<sujet>` écrit `videos/<sujet>/video.mp4` (environ 3 min pour 40 s : donne à la commande un délai de 10 min).
 2. **Fiche technique** : `node verifier.mjs videos/<sujet>`, section `video` : dimensions, images par seconde, codecs, durée, et les problèmes relevés.
-3. **Images de contrôle** : une image par beat, à son moment clé, extraite de `video.mp4` avec `ffmpeg`, assemblées en `videos/<sujet>/controle.png`.
+3. **Images de contrôle** : une image par beat, à son moment clé, puis deux de la carte de fin (le cœur « Like » collé, puis « Abonne-toi »), dans la dernière seconde et demie de la vidéo ; extraites de `video.mp4` avec `ffmpeg`, assemblées en `videos/<sujet>/controle.png`. Sans elles, la case « carte de fin » de la checklist ne se juge pas.
 
 Rends : le chemin de la vidéo, la fiche technique et ses problèmes, et l'instant de chaque image de `controle.png` avec son beat.

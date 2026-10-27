@@ -16,6 +16,7 @@ export const meta = {
 // Lancement : Workflow({name: 'video-courte-afk', args: {sujet: 'Le deadlock', slug: 'deadlock'}}) : script, storyboard,
 // puis la planche d'autocollants, et le passage s'arrête pour que l'utilisateur la valide.
 // Avec args.planche = 'validee', il reprend à la voix ; avec un autre texte, il refait la planche selon ce retour.
+// Avec en plus args.voix, le bilan d'une voix déjà produite et vérifiée, il reprend à l'animation.
 // args.test = true vérifie seulement que le workflow se charge.
 // Chaque appel passe par un agent dédié de .claude/agents/ (outils limités, modèle fixé dans sa fiche).
 if (args && args.test) return { ok: true }
@@ -40,13 +41,15 @@ const CRITIQUE = {
   required: ['bloquants', 'mineurs', 'resume'],
 }
 
-// Le correcteur reçoit les retours et le rendu du passage précédent (ses choix et leurs raisons).
+// Le correcteur reçoit les retours et le rendu du passage précédent (ses choix et leurs raisons). Une formulation que
+// propose le critique est un exemple : les règles du skill priment (le sel a perdu son « M'sieur, …, non ? » ainsi).
 const corrections = (retours, precedent) => retours
-  ? `\n\nUn critique demande ces corrections ; applique-les toutes, exactement :\n- ${retours.join('\n- ')}\n\nLe passage précédent a rendu ceci, avec ses choix et leurs raisons :\n${precedent}\nGarde ces choix, sauf ceux que visent les retours.`
+  ? `\n\nUn critique demande ces corrections ; applique-les toutes :\n- ${retours.join('\n- ')}\n\nUne formulation qu'il propose (une réplique, un mot) est un exemple : si elle s'écarte d'une règle du skill, comme la forme de l'ouverture dans script.md, garde la règle et dis ce que tu as adapté.\n\nLe passage précédent a rendu ceci, avec ses choix et leurs raisons :\n${precedent}\nGarde ces choix, sauf ceux que visent les retours.`
   : ''
-// Le critique reçoit les retours déjà demandés, pour vérifier leur correction avant tout point nouveau.
+// Le critique reçoit les retours déjà demandés, pour vérifier leur correction avant tout point nouveau ; ce que ses
+// corrections ont écrit se rejuge aussi selon les règles, sans quoi il validerait sa propre formulation.
 const critique = (nom, regles, historique) => `Nœud « ${nom} » de la vidéo, dossier ${dossier}.\n\n${regles}` + (historique.length
-  ? `\n\nRetours déjà demandés aux passages précédents :\n- ${historique.join('\n- ')}`
+  ? `\n\nRetours déjà demandés aux passages précédents :\n- ${historique.join('\n- ')}\n\nVérifie d'abord qu'ils sont réglés, puis juge le livrable entier selon les règles, y compris ce que ces corrections ont écrit : une correction appliquée ne dispense d'aucune règle.`
   : '')
 const ajoute = (liste, nouveaux) => liste.push(...nouveaux.filter(m => !liste.includes(m)))
 
@@ -89,7 +92,7 @@ if (!planche) {
   phase('Script')
   const script = await noeud('Script', 'scenariste',
     'Écris le pitch et le dialogue en un seul passage.',
-    `Lis .claude/skills/video-courte/script.md, la checklist de SKILL.md et voix.md (balises de jeu), puis ${dossier}/script.md et ${dossier}/dialogue.json. Le vérificateur donne les mots, la durée estimée et les voix. Juge : l'ouverture, où l'élève avance en 3 s au plus une idée fausse plausible et précise, que la mascotte réfute dès ses premiers mots ; 5 beats au plus ; chaque info racontée une seule fois ; le mécanisme en un moment clé, avec le dispositif du tableau « La forme suit le fond » ; un seul exemple, et chaque phrase à son service ; des actions dites qui peuvent se montrer en mouvement ; du code de 4 lignes au plus ; un français naturel à l'oral.`)
+    `Lis .claude/skills/video-courte/script.md, la checklist de SKILL.md et voix.md (balises de jeu), puis ${dossier}/script.md et ${dossier}/dialogue.json. Le vérificateur donne les mots, la durée estimée et les voix. Juge : l'ouverture, dans la forme de script.md (« M'sieur, <l'idée fausse>, non ? »), sans limite de durée, une vraie question en phrase complète et naturelle à l'oral (pas une suite de mots-clés), avec une idée fausse plausible, précise et fausse dans la réalité, sur un problème général : rien de l'exemple de la mascotte n'y entre (ni objet, ni personnage, ni valeur), elle se comprend seule, et la mascotte la réfute dès ses premiers mots ; 5 beats au plus ; chaque info racontée une seule fois ; le mécanisme en un moment clé, avec le dispositif du tableau « La forme suit le fond » ; un seul exemple, et chaque phrase à son service ; des actions dites qui peuvent se montrer en mouvement ; du code de 4 lignes au plus ; un français naturel à l'oral.`)
 
   phase('Storyboard')
   const storyboard = await noeud('Storyboard', 'storyboarder',
@@ -108,7 +111,9 @@ if (!planche) {
 
 // Planche validée : la suite du passage.
 phase('Voix')
-const voix = await agent(`${AFK}\n\nProduis et vérifie la voix de ${dossier}.`, {
+// Le CLI ElevenLabs se fige quand plusieurs passages l'appellent en même temps (rafraîchissement de session, trousseau) :
+// la session principale produit alors les voix une à une, et args.voix porte son bilan ({ ok, duree, ecarts, anglicismes }).
+const voix = args.voix || await agent(`${AFK}\n\nProduis et vérifie la voix de ${dossier}.`, {
   label: 'Voix · génération et transcription', phase: 'Voix', agentType: 'voix', schema: {
     type: 'object',
     properties: {
@@ -119,7 +124,15 @@ const voix = await agent(`${AFK}\n\nProduis et vérifie la voix de ${dossier}.`,
     },
     required: ['ok', 'duree', 'ecarts', 'anglicismes'],
   } })
-if (voix && !voix.ok) log(`Voix : écarts de transcription restants (${voix.ecarts.length})`)
+// Sans voix, rien ne se juge en aval : le passage s'arrête et le dit, au lieu d'animer et de critiquer à vide.
+if (!voix || !voix.duree) {
+  log('Voix : aucune voix produite, arrêt du passage')
+  phase('Rapport')
+  await agent(`Bilan de la seconde partie du passage AFK de ${dossier}, arrêtée au nœud voix, faute de voix produite : ${JSON.stringify({ sujet, dossier, voix })}`,
+    { label: 'Rapport · etapes.md', phase: 'Rapport', agentType: 'suivi', effort: 'low' })
+  return { sujet, dossier, arret: 'voix', voix }
+}
+if (!voix.ok) log(`Voix : écarts de transcription restants (${voix.ecarts.length})`)
 
 phase('Animation')
 const REGLES_ANIMATION = `Le vérificateur donne les repères et la phrase dite à chacun, les couleurs hors charte, les éléments hors des zones sûres, l'emprise du schéma, les textes sous 48 px, les temps morts du schéma, les gestes qui se chevauchent, les gestes avant que la mascotte parle, les apparitions trop serrées et les traits qui touchent un autocollant. Regarde ensuite, à l'aveugle, ${dossier}/captures.png puis chaque séquence de ${dossier}/sequences/ (une par repère, dans l'ordre du vérificateur, quatre instants de −0,1 à +1 s) : décris ce que montre chacune et compare à la phrase dite. Lis seulement après .claude/skills/video-courte/animation.md, texte.md, charte.md, ${dossier}/storyboard.md et ${dossier}/index.html. Juge : l'image suit la voix, en mouvement, sur son mot (la voix prime sur la tenue d'un état), et aucun temps mort pendant une explication ; le schéma remplit sa zone (animation.md, « Place du schéma ») : une emprise sous l'attendu du vérificateur est bloquante ; un seul geste à la fois, sauf la collision (un chevauchement relevé par le vérificateur peut être la fin d'un même geste : tranche sur les séquences) ; les courbes et durées du tableau d'animation.md, anticipation comprise ; les éléments restent séparés et lisibles ; le texte tient dans les zones sûres, à 48 px au moins, net et immobile après son entrée ; les objets du schéma sont les autocollants de ${dossier}/autocollants/, posés par colle() ; les sous-titres du gabarit sont là, sur deux lignes au plus, sans toucher le schéma ; la mascotte est à la place d'animation.md, dans la pose de celui qui parle ; les couleurs et les polices sont celles de la charte.`

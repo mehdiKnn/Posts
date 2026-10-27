@@ -20,7 +20,11 @@ for f in *.mp3; do
   ffmpeg -y -loglevel error -i "$f" -af "volume=${gain}dB" "egal-$f" && mv "egal-$f" "$f"
 done
 
-# La voix off de la carte de fin, une par mascotte, générée par voix.py comme les répliques (sans égalisation : c'est une voix).
-# « Like » et « abonne » y tombent à 0,40 et 1,12 s : carteDeFin() du gabarit s'y cale.
-d=$(mktemp -d) && echo '{"repliques":[{"qui":"taupe","texte":"[warmly] Like, et abonne-toi !"}]}' > "$d/dialogue.json" \
-  && python3 ../voix.py "$d" && cp "$d/voix.mp3" fin-taupe.mp3 && rm -r "$d"
+# La voix off de la carte de fin, une par mascotte avec sa balise de jeu (voix.md), générée par voix.py comme les répliques
+# (sans égalisation : c'est une voix). Les instants de « Like » et « abonne » se recopient dans VOIX_FIN du gabarit, par mascotte.
+fin() {  # mascotte, balise de jeu
+  d=$(mktemp -d) && echo "{\"repliques\":[{\"qui\":\"$1\",\"texte\":\"$2 Like, et abonne-toi !\"}]}" > "$d/dialogue.json" \
+    && python3 ../voix.py "$d" && cp "$d/voix.mp3" "fin-$1.mp3" && rm -r "$d"
+}
+fin taupe "[warmly]"
+fin cameleon "[excited]"

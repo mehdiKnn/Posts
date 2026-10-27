@@ -9,10 +9,9 @@ import { execFileSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 
 // Recopiés de la charte (débits), de voix.py (blanc), de script.md (bornes), d'animation.md et texte.md (zones, taille).
-const DEBIT = { taupe: 2.3, eleve: 3.3 }
+const DEBIT = { taupe: 2.3, cameleon: 2.6, eleve: 3.3 }
 const BLANC = 0.45
 const BORNES = [30, 45]
-const OUVERTURE = 3  // secondes au plus pour l'idée fausse de l'élève
 const ZONE = { haut: 250, bas: 1650, droite: 1000, gauche: 80, boutons: { x: 900, y: 1270 } }
 const SCHEMA_MIN = { largeur: 736, hauteur: 432 }  // 80 % de la bande du schéma, mesurés sur son image la plus remplie
 const POLICE_MIN = 48
@@ -57,8 +56,7 @@ if (voixAlign && dialogue) {
   const debits = Object.fromEntries(Object.entries(reel).map(([qui, r]) => [qui, Math.round(r.mots / r.secondes * 100) / 100]))
   for (const [qui, d] of Object.entries(debits))
     if (DEBIT[qui] && Math.abs(d - DEBIT[qui]) > 0.1 * DEBIT[qui]) problemes.push(`débit réel de ${qui} : ${d} mots/s, la charte dit ${DEBIT[qui]}`)
-  const ouverture = r1(align.repliques[0].fin - align.repliques[0].debut)
-  if (ouverture > OUVERTURE) problemes.push(`ouverture de ${ouverture} s, au-delà de ${OUVERTURE} s`)
+  const ouverture = r1(align.repliques[0].fin - align.repliques[0].debut)  // mesurée seulement : sa durée n'a pas de limite
   out.voix = { duree: r1(align.end), ouverture, debits, problemes }
 }
 
@@ -127,11 +125,11 @@ console.log(JSON.stringify(out, null, 1))
 function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS, RYTHME }) {
   const r1 = x => Math.round(x * 10) / 10, r2 = x => Math.round(x * 100) / 100
   const dit = s => s.replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim()
-  const cam = document.querySelector('#cam'), taupe = document.querySelector('#taupe'), schema = document.querySelector('#schema')
+  const cam = document.querySelector('#cam'), mascotte = document.querySelector('#mascotte'), schema = document.querySelector('#schema')
   const nom = e => { const p = e.closest('[id]'); return (p ? `#${p.id} ` : '') + e.tagName.toLowerCase() }
   const formes = [...cam.querySelectorAll('path, rect, circle, ellipse, line, polyline, polygon, text, image')]
-    .filter(e => !e.closest('#taupe, defs, clipPath'))
-  const textes = [...cam.querySelectorAll('*')].filter(e => !(e instanceof SVGElement) && !e.closest('#taupe')
+    .filter(e => !e.closest('#mascotte, defs, clipPath'))
+  const textes = [...cam.querySelectorAll('*')].filter(e => !(e instanceof SVGElement) && !e.closest('#mascotte')
     && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()))
   // Les sous-titres, hors de #cam : contrôlés comme les textes (zones, taille), sans compter comme un geste du schéma.
   const sousTitres = [...document.querySelectorAll('#st span')]
@@ -162,11 +160,11 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS,
   // Les acteurs : les éléments nommés les plus fins (un coffre, une flèche, le titre), hors mascotte. Le tremblement,
   // posé sur leur conteneur, n'en fait bouger aucun.
   let u = null, plein = null  // le cadre du schéma visible à chaque image, et le plus grand (on ne montre que ce dont on parle)
-  const acteurs = [...cam.querySelectorAll('[id]')].filter(e => !e.closest('#taupe') && !e.querySelector('[id]'))
+  const acteurs = [...cam.querySelectorAll('[id]')].filter(e => !e.closest('#mascotte') && !e.querySelector('[id]'))
   const chevauchements = [], lance = new Map()  // acteur en mouvement → instant où il s'est mis à bouger
   let avant = null
   // Traits au feutre et autocollants du schéma : un point tous les 6 px de chaque trait, pris jusqu'où il est tracé.
-  const autocollants = [...cam.querySelectorAll('.autocollant')].filter(e => !e.closest('#taupe'))
+  const autocollants = [...cam.querySelectorAll('.autocollant')].filter(e => !e.closest('#mascotte'))
   const traits = formes.filter(e => e.getTotalLength && getComputedStyle(e).stroke !== 'none').map(e => {
     const L = e.getTotalLength(), points = []
     for (let d = 0; d <= L; d += 6) points.push([d, e.getPointAtLength(d)])
@@ -230,7 +228,7 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS,
     }
     const aire = c => (c.right - c.left) * (c.bottom - c.top)
     if (u && (!plein || aire(u) > aire(plein))) plein = { ...u, t }
-    etats.push(cam.outerHTML.replace(taupe.outerHTML, ''))
+    etats.push(cam.outerHTML.replace(mascotte.outerHTML, ''))
   }
   const emprise = { largeur: plein ? Math.round(plein.right - plein.left) : 0, hauteur: plein ? Math.round(plein.bottom - plein.top) : 0, t: plein?.t }
   const emprise_du_schema = !schema ? "la page n'a pas de #schema : reprendre la structure du gabarit"

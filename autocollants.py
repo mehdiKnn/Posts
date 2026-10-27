@@ -8,7 +8,7 @@ en bas), et écrit autocollants/<nom>.png pour chacun, dans l'ordre des noms. Le
 préfixe avant le dernier tiret (cadenas-ouvert, cadenas-ferme) : ils partagent un cadre, calés sur leur base, pour se
 remplacer sans bouger. Le contour blanc et l'ombre ne sont pas dans l'image : le filtre #autocollant du gabarit les pose.
 
-Le détourage sert aussi aux poses des mascottes (mascottes/<nom>/prep.py).
+Le détourage sert aussi aux poses des mascottes (mascottes/prep.py).
 """
 import sys
 from collections import deque

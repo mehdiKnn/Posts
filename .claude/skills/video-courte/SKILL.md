@@ -42,13 +42,14 @@ L'utilisateur donne le sujet ; le workflow `video-courte-afk` (`.claude/workflow
 5. **Voix** — session principale. Guide : [voix.md](voix.md) (Prononcer les anglicismes, Générer, Vérifier) : les anglicismes nouveaux à faire écouter, puis `python3 voix.py videos/<sujet>`. Terminé quand l'utilisateur valide à l'écoute.
 6. **Animation** — agent `animateur` : `index.html`, `captures.png`, `sequences/`. Terminé quand l'utilisateur valide les captures et les séquences.
 7. **Rendu final** — agent `monteur` : `video.mp4`, `controle.png`. Terminé quand la checklist passe sur les images extraites et que l'utilisateur valide la vidéo.
+8. **Publié** — session principale. Guide : [planning.md](../../../planning.md) (le créneau au calendrier, Publier une vidéo). Terminé quand la vidéo est programmée sur TikTok, Instagram et YouTube.
 
 ## Checklist
 
 À passer sur le storyboard (étape 3), puis sur les images de la vidéo finale (étape 7) :
 
 - [ ] Durée et nombre de mots dans les bornes de [script.md](script.md)
-- [ ] Ouvre en 3 s au plus sur l'idée fausse de l'élève, que la mascotte réfute ; la mascotte de la thématique est sur la feuille
+- [ ] Ouvre sur l'idée fausse de l'élève, un problème général où rien de l'exemple de la mascotte n'entre, et que la mascotte réfute ; la mascotte de la thématique est sur la feuille
 - [ ] Chaque beat apporte une info nouvelle ; chaque chose est racontée une seule fois
 - [ ] Le mécanisme tient en un moment clé, avec un seul dispositif, réutilisé pour la solution
 - [ ] L'image suit la voix : chaque action dite se voit en mouvement, sur son mot, puis s'efface ; pas de schéma figé pendant une explication

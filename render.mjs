@@ -20,7 +20,7 @@ const browser = await chromium.launch({ channel: 'chrome' })
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } })
 await page.goto(pathToFileURL(`${dir}/index.html`) + '?render')
 await page.waitForFunction(() => window.ready, null, { timeout: 30000 })
-// La page peut exposer seekTo(t) pour ce qui ne passe pas par la timeline (poses, bouche).
+// La page peut exposer seekTo(t) pour ce qui ne passe pas par la timeline (poses, sauts de la mascotte).
 const seek = t => page.evaluate(t => { window.seekTo ? window.seekTo(t) : tl.seek(t) }, t)
 const ffmpeg = (...args) => new Promise((ok, ko) => spawn('ffmpeg', ['-y', '-loglevel', 'error', ...args], { stdio: 'inherit' })
   .on('close', code => code ? ko(new Error(`ffmpeg : code ${code}`)) : ok()))
@@ -33,7 +33,7 @@ const etiquette = texte => page.evaluate(texte => {
 const DECALAGES = [-0.1, 0.2, 0.5, 1]  // autour d'un repère : juste avant, l'action, son milieu, ce qui en reste
 
 if (temps[0] === 'controle') {
-  const reperes = await page.evaluate(() => window.REPERES)
+  const reperes = await page.evaluate(() => [...(window.REPERES ?? []), ...(window.REPERES_FIN ?? [])])  // + la carte de fin si la page l'expose
   if (!reperes?.length) throw new Error("La page n'expose pas window.REPERES : reprendre la fonction cue() du gabarit")
   const tmp = await mkdtemp(join(tmpdir(), 'controle-'))
   await rm(`${dir}/sequences`, { recursive: true, force: true })
