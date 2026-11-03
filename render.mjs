@@ -1,9 +1,9 @@
-// node render.mjs videos/race-condition           → videos/race-condition/video.mp4 (index.html + voix.mp3)
-// node render.mjs videos/race-condition 2 9.5     → shot-2.png, shot-9.5.png… dans le dossier (captures à ces secondes)
-// node render.mjs videos/race-condition controle  → captures.png (une image par repère de cue()) et sequences/01.png…
+// node render.mjs videos/cache           → videos/cache/video.mp4 (index.html + voix.mp3)
+// node render.mjs videos/cache 2 9.5     → shot-2.png, shot-9.5.png… dans le dossier (captures à ces secondes)
+// node render.mjs videos/cache controle  → captures.png (une image par repère de cue()) et sequences/01.png…
 //                                                  (quatre images autour de chaque repère, pour juger le mouvement)
-// node render.mjs videos/race-condition controle masque → les mêmes, avec en rouge ce que l'interface d'Instagram couvre
-// node render.mjs videos/race-condition couverture [s]  → couverture.png : l'image de couverture (à `s` secondes, sinon
+// node render.mjs videos/cache controle masque → les mêmes, avec en rouge ce que l'interface d'Instagram couvre
+// node render.mjs videos/cache couverture [s]  → couverture.png : l'image de couverture (à `s` secondes, sinon
 //                                                  l'instant que la page donne dans window.COUVERTURE)
 // Le bruitage : ce que la page range dans window.SFX (lib/stage.js) se mixe avec la voix, au niveau de VOLUME_SFX.
 // ffmpeg se prend dans le PATH, ou dans la variable FFMPEG.

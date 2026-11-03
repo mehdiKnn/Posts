@@ -2,6 +2,8 @@
 
 Mascotte : la taupe (Backend). Dispositif : collision en écran partagé, réutilisé pour la solution. Exemple unique : la dernière place de concert. Pas de code : il réexpliquerait le même mécanisme sous une autre forme.
 
+DA Manar Studio ([da-manar.md](../../.claude/skills/video-courte/da-manar.md)) : papier à pois, titre en Bricolage Grotesque 800 souligné d'un pinceau miel, écrans et sous-titres en DM Sans. Rôles des couleurs : miel = action et mise en lumière (clics, flèches à filet d'encre, attente, aplat sous « verrou ») ; rouge brique = ce qui casse (le choc, le double) ; forêt = la réussite (coches, cadenas, flèche d'achat d'Alice, carte « complet » en crème). Le bâton de la taupe est fixe : c'est l'élément dont parle la voix qui se signale, d'une pulsation unique.
+
 Estimation : 84 mots (élève 10, taupe 74), environ 32 s avec les blancs entre répliques et 1,5 s de fin.
 
 ## Dialogue
@@ -18,11 +20,11 @@ Les balises entre crochets vont à la voix, jamais à l'écran.
 
 | Beat | Temps | Voix | Image | Texte à l'écran |
 |---|---|---|---|---|
-| Question | 0–3 s | Réplique 1 | Feuille à carreaux plein écran. « Race condition » écrit en haut, souligné en bleu. La taupe en bas à gauche, l'air las. | « Race condition » |
-| Mécanisme | 3–21 s | Réplique 2 | Le schéma se trace au feutre : deux téléphones en écran partagé (Alice à gauche, Bob à droite), le billet au centre. Sur « cliquent », les deux doigts tapent. Sur « voient une place », les deux écrans affichent « 1 place » en même temps. Sur « achètent », deux flèches bleues foncent sur le billet : collision, le seul tremblement d'écran de la vidéo. Sur « deux billets », le billet se dédouble, le double en rouge. Sur « qui passe en premier », la baguette pointe les deux flèches. | « 1 place » sur les deux écrans |
+| Question | 0–3 s | Réplique 1 | Papier à pois plein écran. « Race condition » écrit en haut, souligné au pinceau miel. La taupe en bas à gauche, l'air las. | « Race condition » |
+| Mécanisme | 3–21 s | Réplique 2 | Le schéma se trace au trait : deux téléphones en écran partagé (Alice à gauche, Bob à droite), le billet au centre. Sur « cliquent », les deux doigts tapent. Sur « voient une place », les deux écrans affichent « 1 place » en même temps. Sur « achètent », deux flèches miel foncent sur le billet : collision (choc rouge brique), le seul tremblement d'écran de la vidéo. Sur « vérifie », une coche forêt sur chaque écran. Sur « l'autre s'est glissé », la flèche de Bob pulse. Sur « deux billets », le billet se dédouble, le double en rouge brique. Sur « Voilà une race condition », le choc pulse. Sur « qui passe en premier », les deux flèches pulsent ensemble. | « 1 place » sur les deux écrans |
 | Relance | 21–23 s | Réplique 3 | La taupe écoute, bouche fermée, et le schéma revient à zéro. | aucun |
-| Solution | 23–30 s | Réplique 4 | Même schéma, remis à zéro : un cadenas vert se ferme sur le billet côté Alice. La flèche de Bob s'arrête net, en pointillés, et attend. Puis l'écran de Bob passe à « complet », en vert. Le billet reste unique. | « complet » |
-| À retenir | 30–32 s | Réplique 5 | « verrou » s'écrit sous le schéma, surligné en jaune ; la baguette tape dessus. Fin tenue 1,5 s. | « verrou » |
+| Solution | 23–30 s | Réplique 4 | Même schéma, remis à zéro : un cadenas forêt se ferme sur le billet. Sur « un seul geste », le cadenas pulse. La flèche forêt d'Alice va au billet ; l'attente de Bob est un court trait miel en pointillés, qui sort de son téléphone et s'arrête net. Puis l'écran de Bob passe à « complet », carte forêt, texte crème. Le billet reste unique. | « complet » |
+| À retenir | 30–32 s | Réplique 5 | Sur « Donnée partagée », le billet pulse ; sur « accès simultané », la flèche d'Alice et l'attente de Bob pulsent ensemble. « verrou » s'écrit sous le schéma, au bout du bâton, en Bricolage Grotesque, puis un aplat de pinceau miel passe dessous. Fin tenue 1,5 s. | « verrou » |
 
 ## Checklist sur le papier
 
@@ -34,10 +36,10 @@ Les balises entre crochets vont à la voix, jamais à l'écran.
 - [x] Pas de code
 - [x] Texte limité au sujet, à « 1 place », « complet » et « verrou » ; chacun entre une fois et reste immobile
 - [x] Aucun effet de distorsion sur le texte
-- [x] Feuille à carreaux, palette Feutres, Handlee, la taupe
+- [x] Papier à pois, DA Manar Studio (Bricolage Grotesque, DM Sans, miel, rouge brique, forêt), la taupe
 - [x] Voix validées à l'écoute (taupe x1,1, élève x1,0)
 
 ## Visuels prévus
 
-- **Tracés au feutre en SVG** (gratuits, nets, animables trait par trait) : les téléphones, le billet, les flèches, le cadenas, le soulignement.
+- **Tracés au trait en SVG** (gratuits, nets, animables trait par trait) : les téléphones, le billet, les flèches, le cadenas, le soulignement.
 - **La taupe** : deux poses découpées dans sa planche de référence. Avec le bâton quand elle parle, bouche fermée et sans bâton quand l'élève parle ; aucune image générée pour cette vidéo.

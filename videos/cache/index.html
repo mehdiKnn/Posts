@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cache</title>
+<!-- DA Manar Studio (référence) : les jetons, les polices et le trait viennent de lib/manar.css et lib/manar.js. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=Caveat:wght@600&display=block" rel="stylesheet">
+<link rel="stylesheet" href="../../lib/stage.css">
+<link rel="stylesheet" href="../../lib/manar.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="voix-align.js"></script>
+<script src="../../charte/signature.js"></script>
+<script src="../../lib/stage.js"></script>
+<script src="../../lib/dispositifs/copie.js"></script>
+</head>
+<body>
+<script src="../../lib/manar.js"></script>
+<div id="stage">
+  <div id="cam">
+    <div id="titre">Cache</div>
+    <svg viewBox="0 0 1080 1920"><path id="souligne" class="trait" d="M392 404 C470 396 610 410 690 398"/></svg>
+    <div id="schema"></div>
+
+    <div id="taupe">
+      <img data-pose="neutre" src="../../mascottes/taupe/sprites/neutre.png" alt="">
+      <img data-pose="pointe-fermee" src="../../mascottes/taupe/sprites/pointe-fermee.png" alt="">
+      <img data-pose="pointe-ouverte" src="../../mascottes/taupe/sprites/pointe-ouverte.png" alt="">
+    </div>
+  </div>
+  <div id="st"><span></span></div>
+  <div id="signature"><div class="nom"></div><div class="accroche"></div></div>
+</div>
+<div id="play">▶ Cliquer pour lancer (avec le son)</div>
+<audio id="vo" src="voix.mp3" preload="auto"></audio>
+
+<script>
+// Le sujet s'écrit sur la feuille ; il se souligne quand l'élève le nomme.
+ecrit('#titre', 0.2)
+const tSouligne = cue('cache suit')
+trace($('#souligne'), tSouligne, 0.45)
+son('feutre', tSouligne)
+
+// Le dispositif : une source et sa copie. Les mots sont ceux de la voix, dans l'ordre du texte (les mêmes qu'index.html).
+Copie.monter({ avant: '20 €', apres: '25 €', duree: '10 min', ttl: 'TTL', source: 'Base', copie: 'Cache (serveur)' })
+Copie.anime({
+  cache: "cache n'est", base: 'la base ne', prix: 'Un prix', lecture: 'gardé', range: 'en cache',
+  alice: 'Alice', ecrit: 'le passe', change: '25 euros en base', bob: 'Bob voit', perime: 'toujours',
+  encore: "jusqu'à", duree: 'durée de vie', expire: 'expire', reset: R[2].debut,
+  code: 'Le code qui', change2: 'prix à 25', efface: 'efface aussi', apres: 'juste après', vide: 'Bob trouve',
+  relit: 'relit', frais: '25 euros',
+  // Comme index.html : la règle n'est pas rejouée ; l'état final de la solution (25 € partout, anneau plein,
+  // « TTL 10 min ») tient jusqu'à la fin de la voix. La carte sort par le flanc droit de la base, sans passer sur la valeur.
+  rejouer: false, depart: [492, 690],
+})
+
+// « Là, elle suit » (comme index.html) : 25 € des deux côtés, marqués au miel en un seul geste ; l'anneau reste plein.
+// Elles entourent les valeurs sans les couvrir : celle de la base passe sous le texte, celle de la copie autour de sa carte
+// (qui a un fond), au-dessus du schéma.
+$('#schema').insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 1080 1920">
+  <path id="suit-base" class="trait cp-lumiere" d="M156 696 C160 644 384 642 390 702 C395 758 166 766 150 718 C146 702 160 684 190 676"/>
+</svg>`)
+$('#schema').insertAdjacentHTML('beforeend', `<svg viewBox="0 0 1080 1920">
+  <path id="suit-copie" class="trait cp-lumiere" d="M664 640 C668 584 916 582 922 646 C927 712 676 718 660 668 C656 650 668 628 700 620"/>
+</svg>`)
+const tSuit = cue('là, elle suit')
+for (const m of ['#suit-base', '#suit-copie']) trace($(m), tSuit, 0.45)
+son('feutre', tSuit)
+
+// L'image de couverture : la fin du mécanisme, 25 € dans la base, 20 € dans la copie et chez Bob.
+window.COUVERTURE = R[1].fin
+
+signature()
+finir()
+mascotte({ qui: 'taupe', parle: 'pointe', ecoute: 'neutre' })
+sousTitres()
+// Les polices de la DA Manar sont chargées (et vérifiées) avant que la page se déclare prête pour les captures.
+const POLICES = ['800 124px "Bricolage Grotesque"', '600 52px "DM Sans"', '700 52px "DM Sans"', '600 64px "Caveat"']
+Promise.all(POLICES.map(p => document.fonts.load(p, 'Cache 20 € TTL')))
+  .then(() => {
+    const manquantes = POLICES.filter(p => !document.fonts.check(p, 'Cache'))
+    if (manquantes.length) throw new Error('Polices non chargées : ' + manquantes.join(', '))
+    window.POLICES_OK = true
+    demarrer()
+  })
+</script>
+</body>
+</html>
