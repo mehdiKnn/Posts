@@ -40,7 +40,7 @@ L'utilisateur donne le sujet ; le workflow `video-courte-afk` (`.claude/workflow
 6. **Voix** — session principale. Guide : [voix.md](voix.md) (Prononcer les anglicismes, Générer, Vérifier) : les anglicismes nouveaux à faire écouter, puis `python3 voix.py videos/<sujet>`. Terminé quand l'utilisateur valide à l'écoute.
 7. **Visuels**, quand le storyboard demande des images générées — session principale. Guides : [visuels.md](visuels.md), [charte.md](charte.md). Terminé quand chaque planche est validée.
 8. **Animation** — agent `animateur` : `index.html`, `captures.png`, `sequences/`. Terminé quand l'utilisateur valide les captures et les séquences.
-9. **Rendu final** — agent `monteur` : `video.mp4`, `controle.png`. Terminé quand la checklist passe sur les images extraites et que l'utilisateur valide la vidéo.
+9. **Rendu final** — agent `monteur` : `video.mp4`, `controle.png`. Terminé quand la checklist passe sur les images extraites et que l'utilisateur valide la vidéo. Ensuite, `node galerie.mjs` met à jour `galerie.html`, la page qui liste les vidéos à lire et à télécharger.
 10. **Résultats** — l'utilisateur, une semaine après la publication : [resultats.md](resultats.md). Le fichier `videos/<sujet>/resultats.md` (modèle : [modele-resultats.md](modele-resultats.md)) garde ce que la vidéo a rapporté ; au bout de huit à dix vidéos, il corrige les règles.
 
 ## Checklist

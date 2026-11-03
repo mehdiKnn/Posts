@@ -1,8 +1,8 @@
 # Vidéos courtes
 
-Des vidéos verticales de 30 à 45 s (Reels, Shorts, TikTok) qui vulgarisent un concept tech. Une mascotte fait cours sur une feuille à petits carreaux, un élève hors champ l'interpelle, le schéma se trace au feutre en suivant la voix.
+Des vidéos verticales de 30 à 45 s (Reels, Shorts, TikTok) qui vulgarisent un concept tech. Une mascotte fait cours sur un papier à pois (la DA de Manar Studio), un élève hors champ l'interpelle, le schéma se trace en suivant la voix.
 
-Tout se pilote depuis Claude Code : des agents écrivent le script, le storyboard, la voix, l'animation, puis exportent la vidéo. Exemples de rendu : `videos/race-condition/video.mp4` (la première version) et `videos/race-condition-v2/video.mp4` (la même vidéo avec la nouvelle chaîne : sous-titres, bruitages, signature, boucle).
+Tout se pilote depuis Claude Code : des agents écrivent le script, le storyboard, la voix, l'animation, puis exportent la vidéo. Exemples de rendu : `videos/cache/video.mp4` et `videos/race-condition/video.mp4` (sous-titres, bruitages, signature, boucle).
 
 ## Installer
 
@@ -25,7 +25,7 @@ Ouvre Claude Code dans ce dossier, puis :
 
 La vidéo arrive dans `videos/<sujet>/video.mp4`, avec `etapes.md` : ce qui est validé, les retours restés ouverts et ce que tu dois vérifier toi-même (l'écoute de la voix, la prononciation des termes anglais).
 
-Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `videos/race-condition/` est partagé.
+Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `videos/cache/` est partagé.
 
 ## Coûts
 
@@ -42,8 +42,9 @@ Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `v
 | `lib/` | La scène commune (`stage.css`, `stage.js`), les dispositifs de schéma réutilisables (`dispositifs/`) et les bruitages (`sfx/`). Une vidéo n'écrit que son titre, son dispositif et ses repères. |
 | `render.mjs` | Export de la vidéo (voix et bruitages mixés, −14 LUFS), couverture, captures et séquences de contrôle (avec, au choix, ce que l'interface d'Instagram couvre). |
 | `verifier.mjs` | Les contrôles mesurables : durée, débit, repères, couleurs, zones sûres, sous-titres, bruitages, signature, temps morts, fiche technique. |
+| `galerie.mjs` | Génère `galerie.html` : la liste des vidéos (`videos/*/video.mp4`), à lire et à télécharger, dans la DA de Manar Studio. À relancer après chaque rendu final. |
 | `voix.py` | Génère le dialogue à deux voix, avec l'horodatage qui cale l'animation. |
-| `charte/`, `mascottes/` | L'univers visuel, la mascotte et ses poses. |
+| `charte/`, `mascottes/` | Les voix, la mascotte et ses poses. |
 
 Une nouvelle thématique demande sa mascotte : planche générée avec GPT Image via SeamUI, voix créée avec ElevenLabs. Le skill décrit la marche à suivre (`charte.md`, `visuels.md`, `voix.md`).
 
@@ -56,3 +57,10 @@ Une nouvelle thématique demande sa mascotte : planche générée avec GPT Image
 - Le mode AFK fait la voix pendant le storyboard (elles ne dépendent que du dialogue) et rend l'exactitude de la vidéo dans son bilan.
 
 Sans ffmpeg ni ffprobe dans le PATH : les variables `FFMPEG` et `FFPROBE` les désignent (idem `PW` pour `playwright-core`).
+
+## Mettre la galerie en ligne
+
+`galerie.html` (générée par `node galerie.mjs`) liste les vidéos à lire et à télécharger. Le workflow `.github/workflows/pages.yml` la publie sur GitHub Pages à chaque push sur `main` qui touche `videos/*/video.mp4`, `couverture.png` ou `index.html`.
+
+1. Sur GitHub : `Settings → Pages → Source : GitHub Actions` (une seule fois). Sur un dépôt privé, Pages demande un plan payant, et le site est public : les vidéos sont visibles par quiconque a l'adresse.
+2. Après un rendu final : `node galerie.mjs` pour voir la page en local, puis commiter `video.mp4`, `couverture.png` et `index.html` de la vidéo (`.gitignore` ne suit que ceux-là, hors des gabarits partagés). L'adresse : `https://mehdiknn.github.io/Posts/`.

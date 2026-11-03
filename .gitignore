@@ -1,12 +1,22 @@
 .DS_Store
 node_modules/
 __pycache__/
-# Les vidéos produites restent sur la machine de chacun ; seul le gabarit est partagé.
-videos/*
-!videos/race-condition/
-!videos/race-condition-v2/
-# Les contrôles se refont à la demande.
-videos/race-condition-v2/captures.png
-videos/race-condition-v2/sequences/
-videos/race-condition-v2/controle.png
-videos/race-condition-v2/shot-*.png
+_site/
+# Page générée par galerie.mjs.
+galerie.html
+# Les vidéos : on suit seulement ce qu'il faut à la galerie en ligne (le rendu, la couverture et la page de chaque vidéo) ;
+# le reste du dossier d'une vidéo reste sur la machine de chacun.
+videos/*/*
+!videos/*/video.mp4
+!videos/*/couverture.png
+!videos/*/index.html
+# Les gabarits partagés : tout leur dossier.
+!videos/cache/*
+!videos/race-condition/*
+# Les contrôles se refont à la demande ; l'essai de voix est jetable.
+videos/*/captures.png
+videos/*/sequences/
+videos/*/controle.png
+videos/*/shot-*.png
+videos/*/essai-taupe.mp3
+.idea/
