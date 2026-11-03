@@ -4,19 +4,19 @@
 
 La mascotte de la thématique fait cours sur un papier à pois qui remplit l'écran, où le sujet est écrit ; une voix d'élève, hors champ, l'interpelle.
 
-- **Durée** : 30 à 45 s. Le nombre de mots en découle : durée × débit des voix, noté dans la [charte](charte.md). Avec la taupe (2,3 mots/s), environ 70 à 100 mots.
+- **Durée** : 30 à 45 s. Le nombre de mots en découle : durée × débit des voix, noté dans la [charte](charte.md). Avec la taupe (2,3 mots/s), environ 70 à 100 mots ; avec le caméléon (2,6 mots/s), environ 80 à 115.
 - **Beats**, 5 au plus :
-  1. **Idée fausse** (3 s au plus) : l'élève avance, en question, l'idée fausse qu'on se fait du sujet (« M'sieur, il suffit pas de… ? »). La mascotte est sur la feuille, le sujet y est écrit.
-  2. **Mécanisme** : la mascotte réfute l'idée fausse dès ses premiers mots, et le schéma se dessine sur la feuille, comme tracé au trait : il montre le mécanisme, et pourquoi l'idée fausse ne tient pas.
+  1. **Idée fausse** : l'élève avance l'idée fausse qu'on se fait du sujet, toujours sous la même forme, « M'sieur, <l'idée fausse>, non ? ». C'est un problème général, pas le cas d'exemple de la mascotte (« M'sieur, avec des verrous, plus rien ne coince, non ? »). La mascotte est sur la feuille, le sujet y est écrit.
+  2. **Mécanisme** : la mascotte réfute l'idée fausse dès ses premiers mots, et le schéma se construit sur la feuille, tracé au trait (ou en autocollants posés) : il montre le mécanisme, et pourquoi l'idée fausse ne tient pas.
   3. **Relance**, facultative : l'élève pose la question qui mène à la solution (« Et on fait comment ? »).
   4. **Solution** : le même schéma, modifié.
   5. **À retenir** : la mascotte énonce la règle, et le schéma la montre une dernière fois, sans texte ajouté.
 
 ## Règles
 
-- **L'idée fausse d'abord.** L'élève énonce l'erreur que ferait un dev débutant, plausible et précise ; la mascotte la réfute, puis explique. Une vidéo qui réfute une idée fausse, ou qui suit un dialogue, fait mieux apprendre qu'un exposé clair, qui peut même conforter l'erreur ([sources](sources.md)). Cette réplique est l'accroche : elle se dit en 3 s au plus, sans préambule.
+- **L'idée fausse d'abord.** L'élève énonce l'erreur que ferait un dev débutant, plausible et précise, et fausse dans la réalité : ce que fait vraiment un système naïf n'en est pas une (« même mot de passe, même hash » est vrai sans sel) ; l'erreur, c'est ce qu'il en conclut (« … pas grave, non ? »). La mascotte la réfute, puis explique. Une vidéo qui réfute une idée fausse, ou qui suit un dialogue, fait mieux apprendre qu'un exposé clair, qui peut même conforter l'erreur ([sources](sources.md)). Cette réplique est l'accroche, sans préambule et sans limite de durée : une vraie question, une phrase complète comme l'élève la dirait, et pas une suite de mots-clés raccourcie pour aller vite (« M'sieur, si deux personnes ont le même mot de passe, c'est pas grave qu'elles aient le même hash, non ? », et pas « M'sieur, même mot de passe, même hash : pas grave, non ? »). Elle porte sur un problème général, celui que le spectateur reconnaît dans son propre code, et rien de l'exemple de la mascotte n'y entre : ni son objet, ni ses personnages, ni ses valeurs. « M'sieur, deux utilisateurs qui modifient la même donnée en même temps, chacun passe à son tour, non ? », et pas « M'sieur, la dernière place va au premier clic, non ? », où l'on ne sait même pas de quelle place il s'agit. Elle se comprend donc seule, et l'exemple entre ensuite par la bouche de la mascotte, qui le présente (« Il reste une place de concert »).
 - **L'accroche se choisit.** Le scénariste écrit trois formulations de la première réplique de l'élève (une question, une affirmation fausse, un « M'sieur, c'est pas… ? »), dit en une ligne laquelle il retient et pourquoi, et garde les deux autres dans `script.md` : si la vidéo ne retient pas, on ressort la suivante. Les trois partent de l'idée fausse du dossier.
-- **La fin boucle.** La règle finale se dit, puis la feuille se vide et la signature s'écrit : la dernière image est la feuille vide de la première, la vidéo reprend sans à-coup.
+- **La fin boucle.** La règle finale se dit, puis la carte de fin commune (« Like », « Abonne-toi »), puis la signature s'écrit sur la feuille : la dernière image est la feuille vide de la première, la vidéo reprend sans à-coup.
 - **Une info, une fois.** Chaque beat apporte du nouveau, et chaque chose se raconte une seule fois, sous une seule forme.
 - **Le moment clé.** Le mécanisme tient en une image décisive : l'instant où tout bascule. Une séquence, quand elle est indispensable, tient en 3 étapes au plus, montrées en une seule passe.
 - **L'image suit la voix.** À chaque instant, l'image montre ce que dit la phrase. Une action dite (un paiement, une requête, un envoi) se voit comme un mouvement, sur le mot qui la dit ; ce mouvement est éphémère : il apparaît, fait son trajet, puis s'efface. Seul l'état durable reste à l'écran (un verrou tenu, une donnée écrite). Un objet apparaît quand la voix le nomme.
@@ -41,8 +41,8 @@ Environ 38 s et 85 mots, un seul dispositif (la collision en écran partagé). L
 
 | Beat | Voix | Image |
 |---|---|---|
-| Idée fausse (0–3 s) | Élève : « M'sieur, le site vend la dernière place au premier qui clique, non ? » | La taupe sur la feuille, « Race condition » écrit en haut. |
-| Mécanisme (3–18 s) | Mascotte : « Pas forcément. Il reste une place de concert. Alice et Bob cliquent en même temps. Les deux lisent "1 place", les deux achètent : deux billets vendus. Le résultat dépend de qui passe en premier. » | Le schéma se dessine : un écran partagé Alice / Bob, les deux achats percutent le même billet, qui se dédouble. |
-| Relance (18–21 s) | Élève : « Et on fait comment ? » | La taupe écoute, bouche fermée ; le schéma revient à zéro. |
+| Idée fausse (0–4 s) | Élève : « M'sieur, deux utilisateurs qui modifient la même donnée en même temps, chacun passe à son tour, non ? » | La taupe écoute, la feuille est vide : rien ne bouge avant qu'elle parle. |
+| Mécanisme (4–18 s) | Mascotte : « Pas du tout. Il reste une place de concert. Alice et Bob cliquent en même temps. Les deux lisent "1 place", les deux achètent : deux billets vendus. Le résultat dépend de qui passe en premier. » | Le schéma se dessine : un écran partagé Alice / Bob, les deux achats percutent le même billet, qui se dédouble. |
+| Relance (18–21 s) | Élève : « Et on fait comment ? » | La taupe écoute, bouche fermée ; le schéma revient à son état de départ : ce que la solution réutilise reste, le reste part. |
 | Solution (21–33 s) | Mascotte : « On pose un verrou : un seul achat à la fois. Bob attend qu'Alice ait fini, et il voit "complet". » | Même schéma : un verrou se ferme côté Alice, Bob patiente, son écran passe à « complet ». |
 | À retenir (33–38 s) | Mascotte : « Donnée partagée, accès simultané : verrou. » | Le verrou se referme une dernière fois côté Alice. |

@@ -16,7 +16,7 @@ import wave
 from pathlib import Path
 
 # Valeurs de la charte (.claude/skills/video-courte/charte.md) : identifiant ElevenLabs, vitesse.
-VOIX = {"taupe": ("JU5Y5gbUK29NVNaEewvw", 1.0), "eleve": ("3nT3AnggTZEbUmlaPicL", 1.0)}
+VOIX = {"taupe": ("JU5Y5gbUK29NVNaEewvw", 1.0), "cameleon": ("lxxgkTXQMN7g00AHMeTC", 1.0), "eleve": ("3nT3AnggTZEbUmlaPicL", 1.0)}
 BLANC = 0.45  # secondes de silence entre deux répliques
 RATE = 44100
 

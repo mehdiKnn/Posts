@@ -34,7 +34,7 @@ Les balises entre crochets vont à la voix, jamais à l'écran.
 - [x] Le mécanisme tient en un moment clé (la collision), et la solution réutilise le même schéma
 - [x] Un seul exemple (le concert), aucune anecdote superposée
 - [x] Pas de code
-- [x] Texte limité au sujet, à « 1 place », « complet » et « verrou » ; chacun entre une fois et reste immobile
+- [x] Texte limité au sujet, à « 1 place » et « complet » ; chacun entre une fois et reste immobile. Les sous-titres suivent la voix
 - [x] Aucun effet de distorsion sur le texte
 - [x] Papier à pois, DA Manar Studio (Bricolage Grotesque, DM Sans, miel, rouge brique, forêt), la taupe
 - [x] Voix validées à l'écoute (taupe x1,1, élève x1,0)

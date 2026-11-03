@@ -33,10 +33,9 @@
     <div id="schema"></div>
     <div id="mot"><i></i><span>verrou</span></div>
 
-    <div id="taupe">
-      <img data-pose="neutre" src="../../mascottes/taupe/sprites/neutre.png" alt="">
-      <img data-pose="pointe-fermee" src="../../mascottes/taupe/sprites/pointe-fermee.png" alt="">
-      <img data-pose="pointe-ouverte" src="../../mascottes/taupe/sprites/pointe-ouverte.png" alt="">
+    <div id="mascotte">
+      <img data-pose="neutre" alt="">
+      <img data-pose="pointe" alt="">
     </div>
   </div>
   <div id="st"><span></span></div>
@@ -46,11 +45,10 @@
 <audio id="vo" src="voix.mp3" preload="auto"></audio>
 
 <script>
-// Le sujet s'écrit sur la feuille ; il se souligne au pinceau miel quand l'élève le nomme.
-ecrit('#titre', 0.2)
-const tSouligne = cue('race condition')
-trace($('#souligne'), tSouligne, 0.5)
-son('feutre', tSouligne)
+// Rien ne bouge avant que la mascotte parle : le sujet s'écrit sur son premier mot, puis se souligne aussitôt au pinceau miel.
+ecrit('#titre', R[1].debut, 0.4)
+trace($('#souligne'), R[1].debut + 0.55, 0.3)
+son('feutre', R[1].debut + 0.55)
 
 // Le dispositif : la collision, puis le verrou. Les mots sont ceux de la voix, dans l'ordre du texte.
 Collision.monter({ lecture: '1 place', fin: 'complet' })
@@ -82,6 +80,7 @@ REPERES.sort((a, b) => a.t - b.t)
 // L'image de couverture : le titre, le schéma complet (verrou, « complet »), le mot à retenir.
 window.COUVERTURE = tMot + 0.9
 
+carteDeFin('taupe')
 signature()
 finir()
 mascotte({ qui: 'taupe', parle: 'pointe', ecoute: 'neutre' })

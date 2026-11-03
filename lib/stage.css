@@ -18,13 +18,17 @@ svg{position:absolute;inset:0;width:1080px;height:1920px;overflow:visible}
 
 /* Le schéma, agrandi et descendu ; la mascotte en bas à gauche, coupée par le bord gauche, laisse la place aux sous-titres. */
 #schema{position:absolute;inset:0;transform-origin:540px 630px;transform:translateY(70px) scale(1.1)}
-#taupe{position:absolute;left:-290px;top:900px;width:1000px;height:650px;transform-origin:50% 94%}
-#taupe img{position:absolute;inset:0;width:100%;height:100%;visibility:hidden}
+#mascotte{position:absolute;left:-290px;top:900px;width:1000px;height:650px;transform-origin:50% 94%}
+#mascotte img{position:absolute;inset:0;width:100%;height:100%;visibility:hidden}
 
 /* Sous-titres : hors de #cam, le tremblement ne les secoue pas ; bas de la zone sûre, à droite de la mascotte. */
 #st{position:absolute;left:280px;right:185px;bottom:440px;text-align:center;font:70px/1.3 var(--texte-m);text-wrap:balance}
 #st span{background:var(--encre);padding:2px 18px;border-radius:14px;-webkit-text-stroke:1.5px var(--creme);-webkit-box-decoration-break:clone;box-decoration-break:clone}
 #st span:empty{display:none}
+
+/* La carte de fin : ses images et ses légendes, posées par carteDeFin() (lib/stage.js) au milieu du papier vide. */
+#fin img,#fin .legende{position:absolute;opacity:0}
+#fin .legende{width:360px;text-align:center;font-size:64px;line-height:1}
 
 /* Signature : le papier revient, vide, avec le nom du studio écrit dessus. Sa dernière image est celle de la première :
    la vidéo boucle sans à-coup. */

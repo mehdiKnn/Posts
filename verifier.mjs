@@ -1,26 +1,27 @@
 // node verifier.mjs videos/deadlock → JSON des contrôles mesurables, selon les fichiers présents dans le dossier :
 //   dialogue.json : mots et durée estimée ; storyboard.md : repères de synchro ;
 //   voix-align.js : durée réelle, ouverture et débit réel de chaque voix ;
-//   index.html : couleurs hors charte, zones sûres, emprise du schéma, textes trop petits, temps morts du schéma, gestes qui se chevauchent,
-//   repères de cue() ;
+//   index.html : couleurs hors charte, zones sûres (sous-titres compris), emprise du schéma, textes trop petits, temps morts du schéma, gestes qui se chevauchent,
+//   gestes avant que la mascotte parle, apparitions trop serrées, traits au feutre qui touchent un autocollant, repères de cue() ;
 //   video.mp4 : fiche technique. La partie page passe par playwright-core (npm install), comme render.mjs.
 import { readFileSync, existsSync, statSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 
 // Recopiés de la charte (débits), de voix.py (blanc), de script.md (bornes), d'animation.md et texte.md (zones, taille).
-const DEBIT = { taupe: 2.3, eleve: 3.3 }
+const DEBIT = { taupe: 2.3, cameleon: 2.6, eleve: 3.3 }
 const BLANC = 0.45
 const BORNES = [30, 45]
-const OUVERTURE = 3  // secondes au plus pour l'idée fausse de l'élève
 const ZONE = { haut: 250, bas: 1650, droite: 1000, gauche: 80, boutons: { x: 900, y: 1270 } }
-const SCHEMA_MIN = { largeur: 736, hauteur: 432 }  // 80 % de la bande du schéma, mesurés sur la dernière image
+const SCHEMA_MIN = { largeur: 736, hauteur: 432 }  // 80 % de la bande du schéma, mesurés sur son image la plus remplie
 const POLICE_MIN = 48
 const TEMPS_MORT = 3  // secondes où le schéma ne bouge pas pendant la voix
 // Deux éléments lancés à moins de ECART secondes l'un de l'autre font un seul geste (un billet et sa traînée,
 // la paire symétrique d'une collision) ; au-delà, un geste qui démarre pendant qu'un autre bouge est un chevauchement.
 const ECART = 0.25
 const PAS = 0.1
+const RYTHME = { apparitions: 3, secondes: 2.5 }  // au plus 3 apparitions en 2,5 s (animation.md)
+const ABORDS = 25  // px autour d'un autocollant, que les traits laissent libres : son contour blanc (10 px), puis 15 px de feuille (animation.md)
 
 const dir = process.argv[2]
 const lire = f => existsSync(`${dir}/${f}`) ? readFileSync(`${dir}/${f}`, 'utf8') : null
@@ -55,8 +56,7 @@ if (voixAlign && dialogue) {
   const debits = Object.fromEntries(Object.entries(reel).map(([qui, r]) => [qui, Math.round(r.mots / r.secondes * 100) / 100]))
   for (const [qui, d] of Object.entries(debits))
     if (DEBIT[qui] && Math.abs(d - DEBIT[qui]) > 0.1 * DEBIT[qui]) problemes.push(`débit réel de ${qui} : ${d} mots/s, la charte dit ${DEBIT[qui]}`)
-  const ouverture = r1(align.repliques[0].fin - align.repliques[0].debut)
-  if (ouverture > OUVERTURE) problemes.push(`ouverture de ${ouverture} s, au-delà de ${OUVERTURE} s`)
+  const ouverture = r1(align.repliques[0].fin - align.repliques[0].debut)  // mesurée seulement : sa durée n'a pas de limite
   out.voix = { duree: r1(align.end), ouverture, debits, problemes }
 }
 
@@ -99,7 +99,7 @@ if (html && voixAlign) {
   await page.goto(pathToFileURL(`${dir}/index.html`) + '?render')
   try {
     await page.waitForFunction(() => window.ready, null, { timeout: 30000 })
-    Object.assign(out.page, await page.evaluate(mesurer, { ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }))
+    Object.assign(out.page, await page.evaluate(mesurer, { ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS, RYTHME }))
   } catch (e) {
     out.page.erreurs = erreurs.length ? erreurs : [e.message]
   }
@@ -142,15 +142,17 @@ if (existsSync(`${dir}/video.mp4`)) {
 console.log(JSON.stringify(out, null, 1))
 
 // Dans la page : parcourt la timeline tous les PAS secondes, la mascotte mise à part (sa place est fixée par animation.md).
-function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
+function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS, RYTHME }) {
   const r1 = x => Math.round(x * 10) / 10, r2 = x => Math.round(x * 100) / 100
   const dit = s => s.replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim()
-  const cam = document.querySelector('#cam'), taupe = document.querySelector('#taupe'), schema = document.querySelector('#schema')
+  const cam = document.querySelector('#cam'), mascotte = document.querySelector('#mascotte'), schema = document.querySelector('#schema')
   const nom = e => { const p = e.closest('[id]'); return (p ? `#${p.id} ` : '') + e.tagName.toLowerCase() }
   const formes = [...cam.querySelectorAll('path, rect, circle, ellipse, line, polyline, polygon, text, image')]
-    .filter(e => !e.closest('#taupe, defs, clipPath'))
-  const textes = [...cam.querySelectorAll('*')].filter(e => !(e instanceof SVGElement) && !e.closest('#taupe')
+    .filter(e => !e.closest('#mascotte, defs, clipPath'))
+  const textes = [...cam.querySelectorAll('*')].filter(e => !(e instanceof SVGElement) && !e.closest('#mascotte')
     && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()))
+  // Les sous-titres, hors de #cam : contrôlés comme les textes (zones, taille), sans compter comme un geste du schéma.
+  const sousTitres = [...document.querySelectorAll('#st span')]
   // Visible : rien d'éteint au-dessus, et ni pas encore tracé au feutre, ni pas encore écrit (clip à 100 %).
   const visible = e => {
     for (let p = e; p && p !== cam; p = p.parentElement) {
@@ -177,13 +179,28 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
 
   // Les acteurs : les éléments nommés les plus fins (un coffre, une flèche, le titre), hors mascotte. Le tremblement,
   // posé sur leur conteneur, n'en fait bouger aucun.
-  let u = null  // le cadre du schéma visible ; à la dernière image, le schéma complet
+  let u = null, plein = null  // le cadre du schéma visible à chaque image, et le plus grand (on ne montre que ce dont on parle)
   let schemaBas = 0  // le point le plus bas que le schéma atteint pendant la vidéo
-  let plein = null  // le schéma complet : son cadre juste avant que la signature ne vide la feuille
-  const acteurs = [...cam.querySelectorAll('[id]')].filter(e => !e.closest('#taupe') && !e.querySelector('[id]'))
+  const acteurs = [...cam.querySelectorAll('[id]')].filter(e => !e.closest('#mascotte') && !e.querySelector('[id]'))
   const chevauchements = [], lance = new Map()  // acteur en mouvement → instant où il s'est mis à bouger
   let avant = null
+  // Traits au feutre et autocollants du schéma : un point tous les 6 px de chaque trait, pris jusqu'où il est tracé.
+  const autocollants = [...cam.querySelectorAll('.autocollant')].filter(e => !e.closest('#mascotte'))
+  const traits = formes.filter(e => e.getTotalLength && getComputedStyle(e).stroke !== 'none').map(e => {
+    const L = e.getTotalLength(), points = []
+    for (let d = 0; d <= L; d += 6) points.push([d, e.getPointAtLength(d)])
+    return { e, L, points }
+  })
+  const touches = {}
+  // Apparitions : un acteur dont rien n'était visible et dont quelque chose l'est. Le titre et son soulignement comptent pour une.
+  const lisibles = new Set([...formes, ...textes])
+  const montre = a => [a, ...a.querySelectorAll('*')].some(e => lisibles.has(e) && visible(e))
+  const cle = a => a.closest('#titre') || a.id === 'souligne' ? 'titre' : '#' + a.id
+  const apparitions = []
+  let vus = null
 
+  // Rien ne bouge avant le premier mot de la mascotte : pendant la question de l'élève, la feuille attend (animation.md).
+  const DEBUT = (ALIGN.repliques ?? []).find(r => r.qui !== 'eleve')?.debut ?? 0, tropTot = new Set()
   const duree = tl.duration(), hors = {}, etats = []
   for (let k = 0; k * PAS <= duree; k++) {
     const t = r2(k * PAS)
@@ -195,9 +212,13 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
     const nouveaux = bougent.filter(e => !lance.has(e))
     nouveaux.forEach(e => lance.set(e, t))
     const enCours = bougent.filter(e => lance.get(e) <= t - ECART)
+    if (t < DEBUT) bougent.forEach(e => tropTot.add('#' + e.id))
+    const montres = acteurs.map(montre)
+    if (vus) acteurs.forEach((a, i) => { if (montres[i] && !vus[i] && !(cle(a) === 'titre' && apparitions.some(p => p.cle === 'titre'))) apparitions.push({ t, cle: cle(a) }) })
+    vus = montres
     if (nouveaux.length && enCours.length) chevauchements.push({ t, demarrent: nouveaux.map(e => '#' + e.id), bougent_encore: enCours.map(e => '#' + e.id) })
     u = null
-    for (const e of [...formes, ...textes]) {
+    for (const e of [...formes, ...textes, ...sousTitres]) {
       if (!visible(e)) continue
       const b = cadre(e)
       if (schema?.contains(e)) u = u ? { top: Math.min(u.top, b.top), bottom: Math.max(u.bottom, b.bottom), left: Math.min(u.left, b.left), right: Math.max(u.right, b.right) } : b
@@ -210,20 +231,52 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
         h.a = t
       }
     }
+    const colles = autocollants.filter(visible).map(a => [a, a instanceof SVGElement ? a.getBoundingClientRect() : cadre(a)])
+    for (const { e, L, points } of colles.length ? traits : []) {
+      if (!visible(e)) continue
+      const s = getComputedStyle(e), m = e.getScreenCTM(), marge = ABORDS + parseFloat(s.strokeWidth) / 2 * Math.abs(m.a)
+      const trace = s.strokeDasharray === 'none' ? L : L - Math.max(0, parseFloat(s.strokeDashoffset))
+      for (const [a, b] of colles) {
+        const dedans = points.some(([d, p]) => {
+          if (d > trace) return false
+          const q = new DOMPoint(p.x, p.y).matrixTransform(m)
+          return q.x > b.left - marge && q.x < b.right + marge && q.y > b.top - marge && q.y < b.bottom + marge
+        })
+        if (!dedans) continue
+        const k = (touches[nom(e) + '|#' + a.id] ??= { trait: nom(e), autocollant: '#' + a.id, de: t })
+        k.a = t
+      }
+    }
     if (u) schemaBas = Math.max(schemaBas, u.bottom)
-    if (u && (window.SIGNATURE_DEBUT === undefined || t < SIGNATURE_DEBUT)) plein = u
-    etats.push(cam.outerHTML.replace(taupe.outerHTML, ''))
+    const aire = c => (c.right - c.left) * (c.bottom - c.top)
+    if (u && (!plein || aire(u) > aire(plein))) plein = { ...u, t }
+    etats.push(cam.outerHTML.replace(mascotte.outerHTML, ''))
   }
-  const emprise = { largeur: plein ? Math.round(plein.right - plein.left) : 0, hauteur: plein ? Math.round(plein.bottom - plein.top) : 0 }
+  const emprise = { largeur: plein ? Math.round(plein.right - plein.left) : 0, hauteur: plein ? Math.round(plein.bottom - plein.top) : 0, t: plein?.t }
   const emprise_du_schema = !schema ? "la page n'a pas de #schema : reprendre la structure du gabarit"
     : emprise.largeur < SCHEMA_MIN.largeur || emprise.hauteur < SCHEMA_MIN.hauteur
       ? { ...emprise, probleme: `sous ${SCHEMA_MIN.largeur} × ${SCHEMA_MIN.hauteur} px : le schéma ne remplit pas sa zone` } : emprise
 
-  // Temps morts : le schéma (titre compris) ne change pas pendant que la voix parle.
+  // Rythme : des apparitions à moins de ECART l'une de l'autre font une seule apparition (lancées ensemble).
+  const groupes = []
+  for (const p of apparitions) {
+    const g = groupes.at(-1)
+    if (g && p.t - g.dernier <= ECART) g.cles.push(p.cle), g.dernier = p.t
+    else groupes.push({ t: p.t, dernier: p.t, cles: [p.cle] })
+  }
+  const apparitions_trop_serrees = []
+  for (let i = 0; i < groupes.length; i++) {
+    const fenetre = groupes.filter(g => g.t >= groupes[i].t && g.t < groupes[i].t + RYTHME.secondes)
+    const fin = fenetre.at(-1).t, couvert = apparitions_trop_serrees.at(-1)
+    if (fenetre.length <= RYTHME.apparitions || (couvert && couvert.a >= fin)) continue
+    apparitions_trop_serrees.push({ de: groupes[i].t, a: fin, apparitions: fenetre.map(g => g.cles.join(' + ')) })
+  }
+
+  // Temps morts : le schéma (titre compris) ne change pas pendant que la voix parle, à partir de la mascotte.
   const temps_morts = []
   for (let debut = 0, k = 1; k <= etats.length; k++) {
     if (k < etats.length && etats[k] === etats[k - 1]) continue
-    const de = r2(debut * PAS), a = r2(Math.min(k * PAS, ALIGN.end))
+    const de = r2(Math.max(debut * PAS, DEBUT)), a = r2(Math.min(k * PAS, ALIGN.end))
     const mots = [...ALIGN.text.matchAll(/\S+/g)].filter(m => ALIGN.t[m.index] >= de && ALIGN.t[m.index] < a)
     if (a - de >= TEMPS_MORT) temps_morts.push({ de, a, voix: dit(mots.map(m => m[0]).join(' ')) })
     debut = k
@@ -246,11 +299,11 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
   // Ce qui s'ajoute : les bruitages (un par geste, aucun hors catalogue), la signature, la couverture.
   const sfx = window.SFX || [], parSon = {}
   for (const e of sfx) parSon[e.son] = (parSon[e.son] ?? 0) + 1
-  const bruitages = { nombre: sfx.length, par_son: parSon, hors_catalogue: sfx.filter(e => !['feutre', 'choc', 'clac', 'pop'].includes(e.son)).map(e => e.son), apres_la_fin: sfx.filter(e => e.t > duree).length }
+  const bruitages = { nombre: sfx.length, par_son: parSon, hors_catalogue: sfx.filter(e => !['feutre', 'choc', 'clac', 'pop'].includes(e.son) && !/^fin-/.test(e.son)).map(e => e.son), apres_la_fin: sfx.filter(e => e.t > duree).length }
   const signature = window.SIGNATURE_DEBUT !== undefined ? { debut: r2(SIGNATURE_DEBUT), fin_de_la_voix: r2(ALIGN.end) } : 'pas de signature (signature() de lib/stage.js)'
   const couverture = window.COUVERTURE !== undefined ? r2(COUVERTURE) : "la page ne donne pas window.COUVERTURE : l'instant de l'image de couverture"
 
-  const polices = [...textes, ...formes.filter(e => e.tagName === 'text')]
+  const polices = [...textes, ...sousTitres, ...formes.filter(e => e.tagName === 'text')]
     .map(e => ({ element: nom(e), px: Math.round(parseFloat(getComputedStyle(e).fontSize) * (e instanceof SVGElement ? e.getScreenCTM().a : 1)) }))
     .filter(p => p.px < POLICE_MIN)
 
@@ -263,5 +316,7 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS }) {
     return { mot, t: r2(t), phrase: dit(s.slice(a, b + 1)) }
   }) : "la page n'expose pas window.REPERES : reprendre la fonction cue() du gabarit"
 
-  return { duree: r2(duree), sous_titres, bruitages, signature, couverture, reperes, hors_zone: Object.values(hors), emprise_du_schema, polices_sous_48: polices, temps_morts, gestes_qui_se_chevauchent: chevauchements }
+  return { duree: r2(duree), sous_titres, bruitages, signature, couverture, reperes, hors_zone: Object.values(hors), emprise_du_schema, polices_sous_48: polices, temps_morts, gestes_qui_se_chevauchent: chevauchements,
+    gestes_avant_la_mascotte: [...tropTot], apparitions_trop_serrees,
+    traits_sur_autocollants: Object.values(touches) }
 }

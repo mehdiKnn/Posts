@@ -13,7 +13,7 @@ Depuis le dossier du projet :
 1. **Export** : `node render.mjs videos/<sujet>` écrit `videos/<sujet>/video.mp4` (environ 3 min pour 40 s : donne à la commande un délai de 10 min).
 2. **Fiche technique** : `node verifier.mjs videos/<sujet>`, section `video` : dimensions, images par seconde, codecs, durée, et les problèmes relevés.
 3. **Couverture** : `node render.mjs videos/<sujet> couverture` écrit `couverture.png`. Regarde-la en petit : le titre et le schéma doivent se lire.
-4. **Images de contrôle** : une image par beat, à son moment clé, extraite de `video.mp4` avec `ffmpeg`, assemblées en `videos/<sujet>/controle.png`.
+4. **Images de contrôle** : une image par beat, à son moment clé, puis deux de la carte de fin (le cœur « Like » collé, puis « Abonne-toi »), dans la dernière seconde et demie avant la signature ; extraites de `video.mp4` avec `ffmpeg`, assemblées en `videos/<sujet>/controle.png`. Sans elles, la case « carte de fin » de la checklist ne se juge pas.
 
 ffmpeg se prend dans le PATH, ou dans la variable `FFMPEG` ; le niveau sonore de la fiche technique est autour de −14 LUFS.
 

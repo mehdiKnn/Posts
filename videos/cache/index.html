@@ -24,10 +24,9 @@
     <svg viewBox="0 0 1080 1920"><path id="souligne" class="trait" d="M392 404 C470 396 610 410 690 398"/></svg>
     <div id="schema"></div>
 
-    <div id="taupe">
-      <img data-pose="neutre" src="../../mascottes/taupe/sprites/neutre.png" alt="">
-      <img data-pose="pointe-fermee" src="../../mascottes/taupe/sprites/pointe-fermee.png" alt="">
-      <img data-pose="pointe-ouverte" src="../../mascottes/taupe/sprites/pointe-ouverte.png" alt="">
+    <div id="mascotte">
+      <img data-pose="neutre" alt="">
+      <img data-pose="pointe" alt="">
     </div>
   </div>
   <div id="st"><span></span></div>
@@ -37,11 +36,10 @@
 <audio id="vo" src="voix.mp3" preload="auto"></audio>
 
 <script>
-// Le sujet s'écrit sur la feuille ; il se souligne quand l'élève le nomme.
-ecrit('#titre', 0.2)
-const tSouligne = cue('cache suit')
-trace($('#souligne'), tSouligne, 0.45)
-son('feutre', tSouligne)
+// Rien ne bouge avant que la mascotte parle : le sujet s'écrit sur son premier mot, puis se souligne aussitôt.
+ecrit('#titre', R[1].debut, 0.5)
+trace($('#souligne'), R[1].debut + 0.6, 0.4)
+son('feutre', R[1].debut + 0.6)
 
 // Le dispositif : une source et sa copie. Les mots sont ceux de la voix, dans l'ordre du texte (les mêmes qu'index.html).
 Copie.monter({ avant: '20 €', apres: '25 €', duree: '10 min', ttl: 'TTL', source: 'Base', copie: 'Cache (serveur)' })
@@ -72,6 +70,7 @@ son('feutre', tSuit)
 // L'image de couverture : la fin du mécanisme, 25 € dans la base, 20 € dans la copie et chez Bob.
 window.COUVERTURE = R[1].fin
 
+carteDeFin('taupe')
 signature()
 finir()
 mascotte({ qui: 'taupe', parle: 'pointe', ecoute: 'neutre' })

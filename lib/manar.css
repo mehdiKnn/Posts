@@ -47,9 +47,10 @@ html,body{background:var(--papier)}
 #schema .ecran.co-reussite{background:var(--reussite);color:var(--creme);font-size:48px;width:210px;margin:-12px 0 0 -8px;
   padding:14px 0;letter-spacing:-0.02em;border-radius:14px 6px 16px 5px/6px 15px 5px 14px}
 
-#taupe{left:-138px;top:1048px}
-/* Sous-titres : à droite de la taupe, au-dessus du coin des boutons ; crème sur forêt, DM Sans. */
-#st{left:555px;right:80px;bottom:650px;font:600 52px/1.3 var(--texte-m);color:var(--creme)}
+#mascotte{left:-290px;top:1048px}
+#fin .legende{font-family:var(--titre-m);font-weight:800;letter-spacing:-0.03em;color:var(--encre)}
+/* Sous-titres : à droite de la mascotte, au-dessus du coin des boutons ; crème sur forêt, DM Sans. */
+#st{left:555px;right:112px;bottom:654px;font:600 52px/1.3 var(--texte-m);color:var(--creme)}
 #st span{background:var(--foret);-webkit-text-stroke:0;border-radius:6px 12px 5px 10px}
 
 /* Signature : le nom en Bricolage Grotesque, l'accroche en Caveat. */

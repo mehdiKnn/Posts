@@ -30,10 +30,9 @@
     <div id="interbloc">(interblocage)</div>
     <div id="schema"></div>
 
-    <div id="taupe">
-      <img data-pose="neutre" src="../../mascottes/taupe/sprites/neutre.png" alt="">
-      <img data-pose="pointe-fermee" src="../../mascottes/taupe/sprites/pointe-fermee.png" alt="">
-      <img data-pose="pointe-ouverte" src="../../mascottes/taupe/sprites/pointe-ouverte.png" alt="">
+    <div id="mascotte">
+      <img data-pose="neutre" alt="">
+      <img data-pose="pointe" alt="">
     </div>
   </div>
   <div id="st"><span></span></div>
@@ -43,12 +42,13 @@
 <audio id="vo" src="voix.mp3" preload="auto"></audio>
 
 <script>
-// Le sujet s'écrit sur la feuille, se souligne d'un trait de pinceau, puis son nom français, plus petit.
-ecrit('#titre', 0.2)
-trace($('#souligne'), 1.0, 0.45)
-son('feutre', 1.0)
-ecrit('#interbloc', 2.3, 0.55)
-son('feutre', 2.3)
+// Rien ne bouge avant que la mascotte parle : le sujet s'écrit sur son premier mot, se souligne d'un trait de pinceau, puis son nom
+// français, plus petit.
+ecrit('#titre', R[1].debut, 0.5)
+trace($('#souligne'), R[1].debut + 0.6, 0.4)
+son('feutre', R[1].debut + 0.6)
+ecrit('#interbloc', R[1].debut + 1.1, 0.5)
+son('feutre', R[1].debut + 1.1)
 
 // Le dispositif : deux virements croisés, puis le même ordre pour tous. Les mots sont ceux de la voix.
 Croisement.monter({ a: 'A', b: 'B' })
@@ -61,6 +61,7 @@ Croisement.anime({
 })
 window.COUVERTURE = R[1].fin  // la boucle fermée, sur le schéma complet du deadlock
 
+carteDeFin('taupe')
 signature()
 tl.set('#interbloc', { opacity: 0 }, window.SIGNATURE_DEBUT)  // la feuille se vide aussi de la ligne sous le titre
 finir()
