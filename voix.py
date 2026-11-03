@@ -3,9 +3,11 @@
 
 Chaque réplique est générée seule (ElevenLabs v4, horodatage par caractère), accélérée à la vitesse
 de sa voix, puis les répliques sont mises bout à bout avec un blanc entre elles.
-Usage : python3 voix.py videos/race-condition
+Usage : python3 voix.py videos/cache
+        python3 voix.py videos/cache --essai   (une seule réplique de la mascotte, pour l'écouter avant de tout payer)
 """
 import base64
+import shutil
 import json
 import subprocess
 import sys
@@ -17,6 +19,13 @@ from pathlib import Path
 VOIX = {"taupe": ("JU5Y5gbUK29NVNaEewvw", 1.0), "eleve": ("3nT3AnggTZEbUmlaPicL", 1.0)}
 BLANC = 0.45  # secondes de silence entre deux répliques
 RATE = 44100
+
+
+def verifier_outils():
+    """ffmpeg et elevenlabs se vérifient avant le premier appel : une voix payée puis perdue faute d'ffmpeg ne se rattrape pas."""
+    for outil, aide in (("ffmpeg", "l'installer (brew install ffmpeg), ou mettre son dossier dans le PATH"), ("elevenlabs", "npm install -g @elevenlabs/cli puis elevenlabs auth login")):
+        if shutil.which(outil) is None:
+            sys.exit(f"{outil} est introuvable : {aide}.")
 
 
 def run(*cmd):
@@ -38,6 +47,7 @@ def replique(texte, voix_id, vitesse, tmp, i):
 
 
 def main(dossier):
+    verifier_outils()
     dossier = Path(dossier)
     repliques = json.loads((dossier / "dialogue.json").read_text())["repliques"]
     pcm, text, t, segments = b"", [], [], []
@@ -71,5 +81,28 @@ def main(dossier):
     print(f"total : {fin:.2f} s, {len(''.join(r['texte'] for r in repliques).split())} mots (balises comprises)")
 
 
+def essai(dossier):
+    """Une seule réplique de la mascotte, écrite dans <dossier>/essai-taupe.mp3 : à écouter contre l'échantillon validé
+    (mascottes/taupe/voix/echantillon.mp3) avant de payer tout le dialogue."""
+    verifier_outils()
+    repliques = json.loads((Path(dossier) / "dialogue.json").read_text())["repliques"]
+    r = next(r for r in repliques if r["qui"] == "taupe")
+    voix_id, vitesse = VOIX["taupe"]
+    print(f"voix de la taupe : {voix_id}, vitesse x{vitesse}")
+    with tempfile.TemporaryDirectory() as tmp:
+        pcm, _, _ = replique(r["texte"], voix_id, vitesse, Path(tmp), 0)
+        wav = Path(tmp) / "essai.wav"
+        with wave.open(str(wav), "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(RATE)
+            w.writeframes(pcm)
+        run("ffmpeg", "-y", "-loglevel", "error", "-i", str(wav), "-c:a", "libmp3lame", "-b:a", "192k", str(Path(dossier) / "essai-taupe.mp3"))
+    print(f"écrit : {Path(dossier) / 'essai-taupe.mp3'}")
+
+
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if len(sys.argv) > 2 and sys.argv[2] == "--essai":
+        essai(sys.argv[1])
+    else:
+        main(sys.argv[1])
