@@ -1,0 +1,58 @@
+/* DA Manar Studio : la base commune des vidéos courtes (voir .claude/skills/video-courte/da-manar.md).
+   À charger après lib/stage.css, avec les polices Google Fonts (Bricolage Grotesque 800, DM Sans 500/600/700, Caveat 600) et lib/manar.js
+   (les filtres « sketch »). La page ne garde que le tracé de son soulignement (#souligne) et son schéma. */
+/* Jetons Manar, puis les rôles du storyboard traduits dans cette DA. */
+:root{
+  --papier:#F1ECDD; --encre-dessin:#1C2A22; --foret:#20392A; --creme:#F5F2E8;
+  --miel:#EDB92E; --kaki:#8A8D5B; --brique:#A8432F;
+  --titre-m:'Bricolage Grotesque',sans-serif; --texte-m:'DM Sans',sans-serif; --note-m:'Caveat',cursive;
+  --feuille:var(--papier); --encre:var(--encre-dessin);
+  --fond:var(--creme); --action:var(--miel); --erreur:var(--brique); --reussite:var(--foret); --lumiere:var(--miel);
+  --police-titre:var(--titre-m); --police-schema:var(--texte-m);
+}
+/* Le papier : crème à pois kaki, grain léger (classe `.papier` pour une page hors vidéo, comme la galerie). Même fond sous la signature, pour que la boucle retombe sur la première image. */
+html,body{background:var(--papier)}
+.papier,#stage,#signature{color:var(--encre);font-family:var(--texte-m);background-color:var(--papier);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .11 0 0 0 0 .16 0 0 0 0 .13 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E"),
+    radial-gradient(circle,rgba(138,141,91,.42) 2.6px,transparent 3.4px);
+  background-size:240px 240px,36px 36px;background-position:0 0,18px 18px}
+#play{font-family:var(--texte-m)}
+
+/* Le titre : Bricolage Grotesque 800, serré ; un seul trait de pinceau miel dessous. */
+#titre{font-family:var(--police-titre);font-weight:800;font-size:124px;letter-spacing:-0.035em;top:252px}
+#souligne{stroke:var(--action);stroke-width:16}
+
+/* Le trait « sketch » : un tracé un peu irrégulier, fixe d'une image à l'autre (graine constante). Les flèches miel
+   prennent un filet d'encre, sans quoi le miel se perd sur le papier. */
+.trait{stroke-width:6}
+#schema svg .trait{filter:url(#sketch)}
+#schema svg .trait.cp-action{filter:url(#sketch-filet);stroke-width:9}
+#schema svg .cp-lumiere{stroke-width:12px;filter:url(#sketch)}
+#schema svg .trait.cp-erreur{stroke-width:8}
+/* Brique collision : mêmes adaptations (flèches et clics miel à filet d'encre, 9 px ; choc et double en brique, 8 px). */
+#schema svg .trait.co-action{filter:url(#sketch-filet);stroke-width:9}
+#schema svg .trait.co-erreur{stroke-width:8}
+#souligne{filter:url(#sketch)}
+
+/* Le texte du schéma : DM Sans, chiffres en colonnes. */
+#schema .cp-txt,#schema .cp-carte{font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
+#schema #cp-nom-base,#schema #cp-nom-cache{font-weight:700}
+/* Les cartes : un cadre au trait irrégulier et une ombre dure décalée, pas de carte arrondie ni d'ombre douce. */
+#schema .cp-carte{border-width:5px;border-radius:14px 6px 16px 5px/6px 15px 5px 14px;box-shadow:7px 7px 0 var(--kaki)}
+/* La valeur fraîche : une surface forêt, la valeur en crème. */
+#schema .cp-carte.reussite{background:var(--reussite);color:var(--creme);border-color:var(--reussite)}
+/* Brique collision : les écrans en DM Sans 700 ; « complet » sur une carte forêt qui remplit la largeur de l'écran de Bob. */
+#schema .ecran{font-weight:700;letter-spacing:-0.01em}
+#schema .ecran.co-reussite{background:var(--reussite);color:var(--creme);font-size:48px;width:210px;margin:-12px 0 0 -8px;
+  padding:14px 0;letter-spacing:-0.02em;border-radius:14px 6px 16px 5px/6px 15px 5px 14px}
+
+#mascotte{left:-290px;top:1048px}
+#fin .legende{font-family:var(--titre-m);font-weight:800;letter-spacing:-0.03em;color:var(--encre)}
+/* Sous-titres : à droite de la mascotte, au-dessus du coin des boutons ; crème sur forêt, DM Sans. */
+#st{left:555px;right:112px;bottom:654px;font:600 52px/1.3 var(--texte-m);color:var(--creme)}
+#st span{background:var(--foret);-webkit-text-stroke:0;border-radius:6px 12px 5px 10px}
+
+/* Signature : le nom en Bricolage Grotesque, l'accroche en Caveat. */
+#signature .nom{font-family:var(--titre-m);font-weight:800;letter-spacing:-0.03em;font-size:120px}
+#signature .accroche{font-family:var(--note-m);font-weight:600;font-size:64px;top:1000px}

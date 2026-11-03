@@ -11,9 +11,10 @@ Avant d'écrire, lis :
 - `.claude/skills/video-courte/script.md` : format, durée, beats, règles, exemple ;
 - `.claude/skills/video-courte/charte.md` : le casting (la mascotte de la thématique, son persona, le débit de chaque voix) ;
 - `.claude/skills/video-courte/voix.md`, sections « Prononcer les anglicismes » et « Générer » (balises de jeu) ;
+- `videos/<sujet>/dossier.md`, la matière exacte du sujet : définition, idées fausses, mécanisme, exemple canonique, ce qu'il ne faut pas affirmer. Tout ce que dit le dialogue s'y appuie ; rien ne le contredit ;
 - `videos/<sujet>/etapes.md`, pour les retours déjà donnés.
 
-**Premier passage : le pitch seul.** Écris-le dans `videos/<sujet>/script.md` : une phrase qui donne le concept, l'idée fausse que l'élève avance pour l'ouvrir (la plus répandue chez les devs débutants, sur un problème général : rien de l'exemple n'y entre, voir script.md) et le dispositif du schéma (tableau « La forme suit le fond »), plus l'exemple unique qui l'illustre. Rends-le pour validation.
+**Premier passage : le pitch seul.** Écris-le dans `videos/<sujet>/script.md` : une phrase qui donne le concept, l'idée fausse que l'élève avance pour l'ouvrir (la plus répandue chez les devs débutants, sur un problème général : rien de l'exemple n'y entre, voir script.md) et le dispositif du schéma (tableau « La forme suit le fond »), plus l'exemple unique qui l'illustre. Donne aussi **trois formulations de la première réplique de l'élève**, toutes issues de l'idée fausse du dossier, la retenue (dis laquelle et pourquoi) et les deux autres gardées dans `script.md`. Rends-le pour validation.
 
 **Pitch validé : le dialogue.** Écris-le dans `script.md`, sous le pitch, et dans `videos/<sujet>/dialogue.json` : `{"repliques":[{"qui":"eleve","texte":"…"},{"qui":"taupe","texte":"…"}]}`, où `qui` est la clé de la voix dans `voix.py` : `taupe` ou `cameleon`, la mascotte de la thématique au casting ([charte](../skills/video-courte/charte.md)). Les balises de jeu vont dans `dialogue.json` seulement. Estime la durée : les mots de chaque voix divisés par son débit (charte), plus 0,45 s entre deux répliques ; elle tient dans les bornes de `script.md`.
 

@@ -80,8 +80,9 @@ if (storyboard && dialogue) {
 
 const html = lire('index.html')
 if (html && voixAlign) {
-  const charte = readFileSync(new URL('.claude/skills/video-courte/charte.md', import.meta.url), 'utf8')
-  const palette = new Set(charte.match(/#[0-9A-F]{6}\b/gi).map(c => c.toUpperCase()))
+  // La palette : celle de la DA Manar Studio (da-manar.md) et les couleurs citées par la charte.
+  const sources = ['da-manar.md', 'charte.md'].map(f => readFileSync(new URL(`.claude/skills/video-courte/${f}`, import.meta.url), 'utf8')).join('\n')
+  const palette = new Set(sources.match(/#[0-9A-F]{6}\b/gi).map(c => c.toUpperCase()))
   const couleurs = {}
   html.split('\n').forEach((l, n) => {
     for (const [c] of l.matchAll(/#(?:[0-9a-f]{6}|[0-9a-f]{3})(?![\w-])/gi))
@@ -89,7 +90,8 @@ if (html && voixAlign) {
   })
   out.page = { couleurs_hors_charte: couleurs }
 
-  const { chromium } = await import(process.env.PW || 'playwright-core')
+  const playwright = await import(process.env.PW || 'playwright-core')
+  const chromium = playwright.chromium ?? playwright.default.chromium  // l'import d'un module CommonJS les met sous `default`
   const browser = await chromium.launch({ channel: 'chrome' })
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } })
   const erreurs = []
@@ -104,11 +106,28 @@ if (html && voixAlign) {
   await browser.close()
 }
 
+// La fiche technique : ffprobe, ou à défaut ffmpeg (variables FFPROBE et FFMPEG), qui l'écrit dans sa sortie d'erreur.
+function fiche(fichier) {
+  try {
+    const p = JSON.parse(execFileSync(process.env.FFPROBE || 'ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,codec_name,width,height,r_frame_rate:format=duration',
+      '-of', 'json', fichier], { encoding: 'utf8' }))
+    const v = p.streams.find(s => s.codec_type === 'video'), a = p.streams.find(s => s.codec_type === 'audio')
+    return { largeur: v.width, hauteur: v.height, r_frame_rate: v.r_frame_rate, codec_video: v.codec_name, codec_audio: a?.codec_name, duree: r1(+p.format.duration) }
+  } catch {
+    let texte = ''
+    try { execFileSync(process.env.FFMPEG || 'ffmpeg', ['-i', fichier], { encoding: 'utf8', stdio: ['ignore', 'ignore', 'pipe'] }) } catch (e) { texte = String(e.stderr) }
+    const d = texte.match(/Duration: (\d+):(\d+):([\d.]+)/), vid = texte.match(/Video: (\w+).*?, (\d+)x(\d+).*?, (\d+(?:\.\d+)?) fps/), aud = texte.match(/Audio: (\w+)/)
+    if (!d || !vid) return null
+    return { largeur: +vid[2], hauteur: +vid[3], r_frame_rate: `${Math.round(+vid[4])}/1`, codec_video: vid[1], codec_audio: aud?.[1], duree: r1(+d[1] * 3600 + +d[2] * 60 + +d[3]) }
+  }
+}
+
 if (existsSync(`${dir}/video.mp4`)) {
-  const p = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,codec_name,width,height,r_frame_rate:format=duration',
-    '-of', 'json', `${dir}/video.mp4`], { encoding: 'utf8' }))
-  const v = p.streams.find(s => s.codec_type === 'video'), a = p.streams.find(s => s.codec_type === 'audio')
-  const video = { largeur: v.width, hauteur: v.height, fps: v.r_frame_rate, codec_video: v.codec_name, codec_audio: a?.codec_name, duree: r1(+p.format.duration) }
+  const f = fiche(`${dir}/video.mp4`)
+  if (!f) out.video = { problemes: ['ni ffprobe ni ffmpeg ne lisent la vidéo : les installer, ou donner FFPROBE / FFMPEG'] }
+  else {
+  const v = { width: f.largeur, height: f.hauteur, r_frame_rate: f.r_frame_rate, codec_name: f.codec_video }, a = { codec_name: f.codec_audio }
+  const video = { largeur: f.largeur, hauteur: f.hauteur, fps: f.r_frame_rate, codec_video: f.codec_video, codec_audio: f.codec_audio, duree: f.duree }
   const problemes = []
   if (v.width !== 1080 || v.height !== 1920) problemes.push(`${v.width} × ${v.height} au lieu de 1080 × 1920`)
   if (v.r_frame_rate !== '30/1') problemes.push(`${v.r_frame_rate} images par seconde au lieu de 30`)
@@ -117,6 +136,7 @@ if (existsSync(`${dir}/video.mp4`)) {
   if (attendue && Math.abs(video.duree - attendue) > 0.15) problemes.push(`durée ${video.duree} s au lieu de ${attendue} s (la timeline)`)
   if (html && statSync(`${dir}/video.mp4`).mtimeMs < statSync(`${dir}/index.html`).mtimeMs) problemes.push('video.mp4 est plus ancienne que index.html : à réexporter')
   out.video = { ...video, problemes }
+  }
 }
 
 console.log(JSON.stringify(out, null, 1))
@@ -160,6 +180,7 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS,
   // Les acteurs : les éléments nommés les plus fins (un coffre, une flèche, le titre), hors mascotte. Le tremblement,
   // posé sur leur conteneur, n'en fait bouger aucun.
   let u = null, plein = null  // le cadre du schéma visible à chaque image, et le plus grand (on ne montre que ce dont on parle)
+  let schemaBas = 0  // le point le plus bas que le schéma atteint pendant la vidéo
   const acteurs = [...cam.querySelectorAll('[id]')].filter(e => !e.closest('#mascotte') && !e.querySelector('[id]'))
   const chevauchements = [], lance = new Map()  // acteur en mouvement → instant où il s'est mis à bouger
   let avant = null
@@ -226,6 +247,7 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS,
         k.a = t
       }
     }
+    if (u) schemaBas = Math.max(schemaBas, u.bottom)
     const aire = c => (c.right - c.left) * (c.bottom - c.top)
     if (u && (!plein || aire(u) > aire(plein))) plein = { ...u, t }
     etats.push(cam.outerHTML.replace(mascotte.outerHTML, ''))
@@ -260,6 +282,27 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS,
     debut = k
   }
 
+  // Sous-titres (hors de #cam, donc hors des mesures ci-dessus) : chacun tient dans les zones sûres et sous le schéma.
+  const st = document.querySelector('#st span')
+  const sous_titres = st ? { zones: [], sur_le_schema: [] } : "la page n'a pas de sous-titres (sousTitres() de lib/stage.js) : à confirmer, c'est un choix"
+  if (st) for (let k = 0; k * PAS <= duree; k++) {
+    const t = r2(k * PAS)
+    window.seekTo(t)
+    if (!st.textContent) continue
+    const r = st.getBoundingClientRect()
+    if (r.top < ZONE.haut || r.bottom > ZONE.bas || r.left < ZONE.gauche || r.right > ZONE.droite || (r.right > ZONE.boutons.x && r.bottom > ZONE.boutons.y))
+      sous_titres.zones.push({ t, texte: st.textContent, cadre: [r.left, r.top, r.right, r.bottom].map(Math.round) })
+    if (r.top < schemaBas) sous_titres.sur_le_schema.push({ t, texte: st.textContent, haut: Math.round(r.top), bas_du_schema: Math.round(schemaBas) })
+  }
+  if (st) { sous_titres.zones = sous_titres.zones.slice(0, 5); sous_titres.sur_le_schema = sous_titres.sur_le_schema.slice(0, 5) }
+
+  // Ce qui s'ajoute : les bruitages (un par geste, aucun hors catalogue), la signature, la couverture.
+  const sfx = window.SFX || [], parSon = {}
+  for (const e of sfx) parSon[e.son] = (parSon[e.son] ?? 0) + 1
+  const bruitages = { nombre: sfx.length, par_son: parSon, hors_catalogue: sfx.filter(e => !['feutre', 'choc', 'clac', 'pop'].includes(e.son) && !/^fin-/.test(e.son)).map(e => e.son), apres_la_fin: sfx.filter(e => e.t > duree).length }
+  const signature = window.SIGNATURE_DEBUT !== undefined ? { debut: r2(SIGNATURE_DEBUT), fin_de_la_voix: r2(ALIGN.end) } : 'pas de signature (signature() de lib/stage.js)'
+  const couverture = window.COUVERTURE !== undefined ? r2(COUVERTURE) : "la page ne donne pas window.COUVERTURE : l'instant de l'image de couverture"
+
   const polices = [...textes, ...sousTitres, ...formes.filter(e => e.tagName === 'text')]
     .map(e => ({ element: nom(e), px: Math.round(parseFloat(getComputedStyle(e).fontSize) * (e instanceof SVGElement ? e.getScreenCTM().a : 1)) }))
     .filter(p => p.px < POLICE_MIN)
@@ -273,7 +316,7 @@ function mesurer({ ZONE, SCHEMA_MIN, POLICE_MIN, TEMPS_MORT, ECART, PAS, ABORDS,
     return { mot, t: r2(t), phrase: dit(s.slice(a, b + 1)) }
   }) : "la page n'expose pas window.REPERES : reprendre la fonction cue() du gabarit"
 
-  return { duree: r2(duree), reperes, hors_zone: Object.values(hors), emprise_du_schema, polices_sous_48: polices, temps_morts, gestes_qui_se_chevauchent: chevauchements,
+  return { duree: r2(duree), sous_titres, bruitages, signature, couverture, reperes, hors_zone: Object.values(hors), emprise_du_schema, polices_sous_48: polices, temps_morts, gestes_qui_se_chevauchent: chevauchements,
     gestes_avant_la_mascotte: [...tropTot], apparitions_trop_serrees,
     traits_sur_autocollants: Object.values(touches) }
 }

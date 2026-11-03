@@ -1,0 +1,58 @@
+# La galerie des vidéos, publiée sur GitHub Pages à chaque push qui touche une vidéo.
+# Réglage unique : Settings → Pages → Source : GitHub Actions.
+name: Galerie
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'videos/*/video.mp4'
+      - 'videos/*/couverture.png'
+      - 'videos/*/index.html'
+      - 'galerie.mjs'
+      - 'lib/manar.css'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/configure-pages@v6
+
+      # galerie.html, puis le site : la page, et pour chaque vidéo son rendu et sa couverture (la page renvoie vers videos/<nom>/).
+      - name: Construire le site
+        run: |
+          node galerie.mjs
+          mkdir -p _site
+          cp galerie.html _site/index.html
+          for dir in videos/*/; do
+            nom=$(basename "$dir")
+            [ -f "$dir/video.mp4" ] || continue
+            mkdir -p "_site/videos/$nom"
+            cp "$dir/video.mp4" "_site/videos/$nom/"
+            [ -f "$dir/couverture.png" ] && cp "$dir/couverture.png" "_site/videos/$nom/"
+          done
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

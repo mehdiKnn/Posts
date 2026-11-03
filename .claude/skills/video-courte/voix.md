@@ -19,6 +19,7 @@
 | Terme | Prononciation validée |
 |---|---|
 | race condition | par défaut, sans alias |
+| deadlock | par défaut, sans alias (validé à l'écoute, vidéo deadlock) |
 
 ## Générer
 
@@ -30,5 +31,24 @@
 
 ## Vérifier
 
+- **Avant de tout générer**, `python3 voix.py videos/<sujet> --essai` ne fait parler que la première réplique de la mascotte (`essai-taupe.mp3`) : l'écouter contre l'échantillon validé du casting (`mascottes/<nom>/voix/echantillon.mp3`). Une voix qui diffère de l'échantillon (hauteur, timbre) se corrige avant de payer les 45 secondes : l'identifiant de la charte, les réglages de la voix dans ElevenLabs, ou l'espace de travail de l'interface en ligne de commande. Une voix peut avoir été retouchée après l'échantillon, ou ne pas être la même chez deux comptes.
+
 - L'utilisateur écoute avant qu'on anime : son oreille juge l'accent et le naturel.
 - La transcription (`elevenlabs speech-to-text convert`) vérifie que les mots prononcés sont ceux du script.
+
+## Lexique à valider
+
+Les termes qui reviennent dans presque toutes les vidéos de la thématique backend. Aucun n'est validé à l'oreille : à chaque nouveau terme, le faire écouter par défaut et avec un alias, puis noter le choix dans le tableau « Prononcer les anglicismes ». Le dictionnaire ElevenLabs (règles « alias ») se crée au premier alias validé, avec `elevenlabs pronunciation-dictionaries` (vérifier la syntaxe de la commande dans l'aide de l'interface en ligne de commande avant de s'y fier).
+
+| Terme | Alias à essayer | Statut |
+|---|---|---|
+| cache | « cache » (à la française) ou « cash » | à écouter |
+| deadlock | « dèdelok » | validé par défaut, sans alias |
+| API | « a-pé-i » | à écouter |
+| SQL | « ès-cu-èl » | à écouter |
+| JWT | « jé-double-vé-té » | à écouter |
+| thread | « threde » ou « sred » | à écouter |
+| callback | « colbak » | à écouter |
+| bug | « beug » | à écouter |
+| backend / frontend | « bak-ennde » / « front-ennde » | à écouter |
+| token | « tokène » | à écouter |

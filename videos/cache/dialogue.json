@@ -1,0 +1,9 @@
+{
+  "repliques": [
+    { "qui": "eleve", "texte": "M'sieur, quand la base change, le cache suit, non ?" },
+    { "qui": "taupe", "texte": "[warmly] Eh non : le cache n'est qu'une copie, la base ne le prévient pas. Un prix de 20 euros est gardé en cache. Alice le passe à 25 euros en base. [chuckles] Bob voit toujours 20 euros… jusqu'à ce que la durée de vie de la copie expire." },
+    { "qui": "eleve", "texte": "Et on fait comment ?" },
+    { "qui": "taupe", "texte": "[warmly] Le code qui passe le prix à 25 euros en base efface aussi la copie, juste après. Bob trouve le cache vide, relit la base : 25 euros." },
+    { "qui": "taupe", "texte": "La base d'abord, puis on efface la copie : là, elle suit." }
+  ]
+}

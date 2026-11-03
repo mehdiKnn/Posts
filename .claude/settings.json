@@ -6,7 +6,8 @@
       "Bash(python3 voix.py:*)",
       "Bash(elevenlabs speech-to-text convert:*)",
       "Bash(ffmpeg:*)",
-      "Bash(ffprobe:*)"
+      "Bash(ffprobe:*)",
+      "Bash(node lib/sfx/make.mjs:*)"
     ]
   }
 }

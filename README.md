@@ -1,8 +1,8 @@
 # Vidéos courtes
 
-Des vidéos verticales de 30 à 45 s (Reels, Shorts, TikTok) qui vulgarisent un concept tech. Une mascotte fait cours sur une feuille à petits carreaux, un élève hors champ l'interpelle ; en suivant la voix, les objets du schéma se collent comme des autocollants et les actions se tracent au feutre. La voix est sous-titrée.
+Des vidéos verticales de 30 à 45 s (Reels, Shorts, TikTok) qui vulgarisent un concept tech. Une mascotte fait cours sur un papier à pois (la DA de Manar Studio), un élève hors champ l'interpelle ; en suivant la voix, le schéma se trace (ou, avec une planche d'autocollants, ses objets se collent). La voix est sous-titrée.
 
-Tout se pilote depuis Claude Code : des agents écrivent le script, le storyboard, la voix, l'animation, puis exportent la vidéo. Exemple de rendu : `videos/race-condition/video.mp4`.
+Tout se pilote depuis Claude Code : des agents écrivent le script, le storyboard, la voix, l'animation, puis exportent la vidéo. Exemples de rendu : `videos/cache/video.mp4` et `videos/race-condition/video.mp4` (sous-titres, bruitages, signature, boucle).
 
 ## Installer
 
@@ -28,7 +28,7 @@ Ouvre Claude Code dans ce dossier, puis :
 
 La vidéo arrive dans `videos/<sujet>/video.mp4`, avec `etapes.md` : ce qui est validé, les retours restés ouverts et ce que tu dois vérifier toi-même (l'écoute de la voix, la prononciation des termes anglais).
 
-Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `videos/race-condition/` est partagé.
+Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `videos/cache/` est partagé.
 
 ## Coûts
 
@@ -44,12 +44,31 @@ Les vidéos produites restent sur ta machine (`.gitignore`) ; seul le gabarit `v
 | `.claude/agents/` | Un agent par étape (scénariste, storyboarder, illustrateur, voix, animateur, monteur), plus le critique et le suivi du mode AFK. |
 | `.claude/workflows/video-courte-afk.js` | Le mode AFK. |
 | `planning.md` | Le rythme de publication, la production qu'il demande, le calendrier, les sujets et la revue du dimanche. |
-| `render.mjs` | Export de la vidéo (voix et bruitages mixés), captures et séquences de contrôle. |
-| `charte/autocollants/` | Les autocollants communs à toutes les vidéos : la carte de fin (cœur « Like », « + » « Abonne-toi »). |
-| `sons/` | Les bruitages des gestes, partagés par toutes les vidéos ; `sh sons/generer.sh` les régénère chez ElevenLabs. |
-| `verifier.mjs` | Les contrôles mesurables : durée, débit, repères, couleurs, zones sûres, temps morts, fiche technique. |
+| `lib/` | La scène commune (`stage.css`, `stage.js`), la DA Manar Studio (`manar.css`, `manar.js`), les dispositifs de schéma réutilisables (`dispositifs/`) et les bruitages (`sfx/`). Une vidéo n'écrit que son titre, son dispositif et ses repères. |
+| `render.mjs` | Export de la vidéo (voix et bruitages mixés, −14 LUFS), couverture, captures et séquences de contrôle (avec, au choix, ce que l'interface d'Instagram couvre). |
+| `charte/autocollants/` | Les images communes à toutes les vidéos : la carte de fin (cœur « Like », « + » « Abonne-toi »). |
+| `sons/` | Les voix de fin des mascottes (« Like, et abonne-toi ! »), que `render.mjs` mixe sous la voix ; `sh sons/generer.sh` les régénère chez ElevenLabs. |
+| `verifier.mjs` | Les contrôles mesurables : durée, débit, repères, couleurs, zones sûres, sous-titres, bruitages, signature, temps morts, fiche technique. |
+| `galerie.mjs` | Génère `galerie.html` : la liste des vidéos (`videos/*/video.mp4`), à lire et à télécharger, dans la DA de Manar Studio. À relancer après chaque rendu final. |
 | `autocollants.py` | Découpe la planche d'autocollants d'une vidéo en une image par objet (le détourage sert aussi aux poses des mascottes). |
 | `voix.py` | Génère le dialogue à deux voix, avec l'horodatage qui cale l'animation. |
-| `charte/`, `mascottes/` | L'univers visuel, la mascotte et ses poses. |
+| `charte/`, `mascottes/` | Les voix, la mascotte et ses poses. |
 
 Une nouvelle thématique demande sa mascotte : planche générée avec GPT Image via SeamUI, voix créée avec ElevenLabs. Le skill décrit la marche à suivre (`charte.md`, `visuels.md`, `voix.md`).
+
+## Ce qui a changé (v2)
+
+- **Un dossier et un expert avant la voix.** L'agent `chercheur` prépare la matière exacte du sujet (`dossier.md`) ; l'agent `expert` relit le dialogue contre elle et classe chaque affirmation : un « faux » ou un « trompeur » repart au scénariste avant que la voix ne soit payée.
+- **Des briques de schéma.** `lib/dispositifs/collision.js` écrit un schéma entier et pose ses gestes sur les mots de la voix : la page ne donne que les mots.
+- **Sous-titres, bruitages, signature, boucle, couverture** dans toutes les vidéos (voir `animation.md` et `texte.md`).
+- **Les résultats d'abord mesurés.** `resultats.md` : après publication, on note la rétention et on corrige les règles sur des chiffres.
+- Le mode AFK fait la voix pendant le storyboard (elles ne dépendent que du dialogue) et rend l'exactitude de la vidéo dans son bilan.
+
+Sans ffmpeg ni ffprobe dans le PATH : les variables `FFMPEG` et `FFPROBE` les désignent (idem `PW` pour `playwright-core`).
+
+## Mettre la galerie en ligne
+
+`galerie.html` (générée par `node galerie.mjs`) liste les vidéos à lire et à télécharger. Le workflow `.github/workflows/pages.yml` la publie sur GitHub Pages à chaque push sur `main` qui touche `videos/*/video.mp4`, `couverture.png` ou `index.html`.
+
+1. Sur GitHub : `Settings → Pages → Source : GitHub Actions` (une seule fois). Sur un dépôt privé, Pages demande un plan payant, et le site est public : les vidéos sont visibles par quiconque a l'adresse.
+2. Après un rendu final : `node galerie.mjs` pour voir la page en local, puis commiter `video.mp4`, `couverture.png` et `index.html` de la vidéo (`.gitignore` ne suit que ceux-là, hors des gabarits partagés). L'adresse : `https://mehdiknn.github.io/Posts/`.

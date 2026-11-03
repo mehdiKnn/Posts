@@ -1,11 +1,12 @@
 export const meta = {
   name: 'video-courte-afk',
-  description: "Produit une vidéo courte du sujet à la vidéo finale avec une seule validation humaine, la planche d'autocollants : un producteur et un critique à chaque étape",
-  whenToUse: "L'utilisateur donne un sujet de vidéo courte et veut la vidéo sans valider chaque étape (mode AFK). args : {sujet, slug}, puis {sujet, slug, planche: 'validee'} une fois la planche validée, ou {sujet, slug, planche: '<retour>'} pour la refaire",
+  description: 'Produit une vidéo courte du sujet à la vidéo finale sans validation humaine : un producteur et un critique à chaque étape',
+  whenToUse: "L'utilisateur donne un sujet de vidéo courte et veut la vidéo sans valider chaque étape (mode AFK). args : {sujet, slug}, et facultativement voix (le bilan d'une voix déjà produite)",
   phases: [
+    { title: 'Dossier', detail: 'chercheur : la matière exacte du sujet' },
     { title: 'Script', detail: 'scénariste, puis critique' },
-    { title: 'Storyboard', detail: 'storyboarder, puis critique' },
-    { title: 'Autocollants', detail: "illustrateur, puis pause : l'utilisateur valide la planche" },
+    { title: 'Exactitude', detail: 'expert : faux, trompeur, simplification acceptable' },
+    { title: 'Storyboard', detail: 'storyboarder, puis critique ; la voix se fait en même temps' },
     { title: 'Voix', detail: 'voix.py, puis transcription' },
     { title: 'Animation', detail: 'animateur, puis critique sur les captures et les séquences' },
     { title: 'Rendu final', detail: 'monteur, puis critique de la checklist' },
@@ -13,10 +14,8 @@ export const meta = {
   ],
 }
 
-// Lancement : Workflow({name: 'video-courte-afk', args: {sujet: 'Le deadlock', slug: 'deadlock'}}) : script, storyboard,
-// puis la planche d'autocollants, et le passage s'arrête pour que l'utilisateur la valide.
-// Avec args.planche = 'validee', il reprend à la voix ; avec un autre texte, il refait la planche selon ce retour.
-// Avec en plus args.voix, le bilan d'une voix déjà produite et vérifiée, il reprend à l'animation.
+// Lancement : Workflow({name: 'video-courte-afk', args: {sujet: 'Le deadlock', slug: 'deadlock'}}).
+// Avec en plus args.voix, le bilan d'une voix déjà produite et vérifiée ({ ok, duree, ecarts, anglicismes }), il ne la refait pas.
 // args.test = true vérifie seulement que le workflow se charge.
 // Chaque appel passe par un agent dédié de .claude/agents/ (outils limités, modèle fixé dans sa fiche).
 if (args && args.test) return { ok: true }
@@ -25,11 +24,10 @@ const slug = args && args.slug
 if (!sujet || !slug) return { erreur: 'args attendus : {sujet, slug}' }
 
 const dossier = `videos/${slug}`
-const planche = args.planche
 const REVISIONS = 2
 // Une révision applique des corrections dictées au pixel près : Sonnet suffit là où la production demande Opus.
 const REVISION = 'sonnet'
-const AFK = `Mode AFK : l'utilisateur est absent ; chaque décision qu'il aurait prise, prends-la selon le skill video-courte et note-la dans ta réponse avec sa raison. Sujet : « ${sujet} ». Dossier de la vidéo : ${dossier} (crée-le au besoin). Cette vidéo se produit avec les poses existantes de la mascotte ; les objets du schéma sont les autocollants de ${dossier}/autocollants/, que l'utilisateur valide ; ce qui relie ou change se trace en SVG.`
+const AFK = `Mode AFK : l'utilisateur est absent ; chaque décision qu'il aurait prise, prends-la selon le skill video-courte et note-la dans ta réponse avec sa raison. Sujet : « ${sujet} ». Dossier de la vidéo : ${dossier} (crée-le au besoin). Cette vidéo se produit avec les poses existantes de la mascotte, dans la DA Manar Studio (.claude/skills/video-courte/da-manar.md) et un schéma entièrement en SVG, sans nouvelle image générée.`
 
 const CRITIQUE = {
   type: 'object',
@@ -76,70 +74,70 @@ async function noeud(nom, producteur, consigne, regles, modeleRevision, ouverts 
   }
 }
 
-// La planche d'autocollants : l'illustrateur la génère et la découpe, puis le passage s'arrête pour l'utilisateur.
-const fabrique = retour => agent(`${AFK}\n\nLe coût d'une planche (une image GPT Image) est accepté. ${retour
-  ? `Refais la planche d'autocollants selon ce retour de l'utilisateur : ${retour}`
-  : "Fabrique la planche d'autocollants du storyboard."}`, { label: 'Autocollants · planche', phase: 'Autocollants', agentType: 'illustrateur' })
-const pause = rendu => ({ pause: 'planche', planche: `${dossier}/autocollants/planche.png`, rendu,
-  suite: "Montre la planche à l'utilisateur, puis relance le workflow avec les mêmes args et planche: 'validee', ou planche: '<son retour>'." })
+phase('Dossier')
+await agent(`${AFK}\n\nPrépare le dossier de ${dossier}.`, { label: 'Dossier · recherche', phase: 'Dossier', agentType: 'chercheur' })
 
-if (planche && planche !== 'validee') {
-  phase('Autocollants')
-  return pause(await fabrique(planche))
+phase('Script')
+const script = await noeud('Script', 'scenariste',
+  `Écris le pitch et le dialogue en un seul passage, à partir de ${dossier}/dossier.md.`,
+  `Lis .claude/skills/video-courte/script.md, la checklist de SKILL.md et voix.md (balises de jeu), puis ${dossier}/dossier.md, ${dossier}/script.md et ${dossier}/dialogue.json. Le dialogue ne contredit pas le dossier ; l'accroche est la retenue parmi trois formulations, les deux autres sont gardées dans script.md. Le vérificateur donne les mots, la durée estimée et les voix. Juge : l'ouverture, où l'élève avance en 3 s au plus une idée fausse plausible et précise, que la mascotte réfute dès ses premiers mots ; 5 beats au plus ; chaque info racontée une seule fois ; le mécanisme en un moment clé, avec le dispositif du tableau « La forme suit le fond » ; un seul exemple, et chaque phrase à son service ; des actions dites qui peuvent se montrer en mouvement ; du code de 4 lignes au plus ; un français naturel à l'oral.`)
+
+// Une vidéo publiée sous le nom d'un studio ne dit rien d'inexact : l'expert relit le dialogue contre le dossier, et un « faux »
+// ou un « trompeur » repart au scénariste (REVISIONS fois), avant que la voix ne soit payée.
+phase('Exactitude')
+let rendu = script.rendu
+const historiqueExact = []
+let exact = null
+for (let tour = 0; ; tour++) {
+  exact = await agent(critique('Exactitude',
+    `Lis ${dossier}/dossier.md (la matière et ses sources), puis ${dossier}/dialogue.json et ${dossier}/script.md. Juge l'exactitude technique de chaque affirmation de la voix, de l'idée fausse de l'élève, de l'exemple et de la règle finale : faux et trompeur sont bloquants ; une simplification acceptable est un retour mineur, avec ce qui est omis.`, historiqueExact),
+    { label: `Exactitude · expert ${tour + 1}`, phase: 'Exactitude', agentType: 'expert', schema: CRITIQUE })
+  if (!exact || !exact.bloquants.length || tour === REVISIONS) break
+  log(`Exactitude : ${exact.bloquants.length} retours bloquants, révision ${tour + 1}`)
+  historiqueExact.push(...exact.bloquants)
+  rendu = await agent(`${AFK}\n\nCorrige le dialogue (dialogue.json et script.md ensemble).${corrections(exact.bloquants, rendu)}`,
+    { label: `Exactitude · révision ${tour + 1}`, phase: 'Exactitude', agentType: 'scenariste', model: REVISION })
 }
 
-if (!planche) {
-  phase('Script')
-  const script = await noeud('Script', 'scenariste',
-    'Écris le pitch et le dialogue en un seul passage.',
-    `Lis .claude/skills/video-courte/script.md, la checklist de SKILL.md et voix.md (balises de jeu), puis ${dossier}/script.md et ${dossier}/dialogue.json. Le vérificateur donne les mots, la durée estimée et les voix. Juge : l'ouverture, dans la forme de script.md (« M'sieur, <l'idée fausse>, non ? »), sans limite de durée, une vraie question en phrase complète et naturelle à l'oral (pas une suite de mots-clés), avec une idée fausse plausible, précise et fausse dans la réalité, sur un problème général : rien de l'exemple de la mascotte n'y entre (ni objet, ni personnage, ni valeur), elle se comprend seule, et la mascotte la réfute dès ses premiers mots ; 5 beats au plus ; chaque info racontée une seule fois ; le mécanisme en un moment clé, avec le dispositif du tableau « La forme suit le fond » ; un seul exemple, et chaque phrase à son service ; des actions dites qui peuvent se montrer en mouvement ; du code de 4 lignes au plus ; un français naturel à l'oral.`)
-
-  phase('Storyboard')
-  const storyboard = await noeud('Storyboard', 'storyboarder',
-    'Écris le storyboard du script validé.',
-    `Lis la checklist de .claude/skills/video-courte/SKILL.md, les règles de script.md, texte.md, animation.md et charte.md, puis ${dossier}/script.md, ${dossier}/dialogue.json et ${dossier}/storyboard.md. Le vérificateur contrôle les repères de synchro (présents dans dialogue.json, dans l'ordre, une fois chacun). Juge d'abord la règle « L'image suit la voix » : à chaque repère, l'image prévue montre-t-elle, en mouvement, l'action que dit la phrase, puis ce mouvement s'efface-t-il ; un objet sans rapport avec la phrase dite est bloquant. Puis la section « Mouvement » d'animation.md : un seul geste à la fois (sauf la collision), seul bouge ce qui sert le concept. Les durées et les tenues ne se jugent pas ici : la voix n'existe pas encore, elles se calent à l'animation sur la voix réelle. Puis : la checklist sur le papier ; le texte à l'écran limité au sujet, aux valeurs du schéma et au code, sans mot-clé de conclusion ; le schéma prévu remplit sa zone (animation.md, « Place du schéma ») ; un seul tremblement d'écran ; les objets concrets en autocollants, 4 au plus, listés dans « Visuels prévus » avec leur nom de fichier, et ce qui relie ou change en SVG ; la pose de la mascotte selon qui parle.`)
-
-  phase('Autocollants')
-  const rendu = await fabrique()
-  phase('Rapport')
-  await agent(`Bilan de la première partie du passage AFK de ${dossier}, arrêtée pour la validation de la planche d'autocollants par l'utilisateur : ${JSON.stringify({
-    sujet, dossier, noeuds: [script, storyboard].map(n => ({ nom: n.nom, valide: n.valide, retours: n.retours, mineurs: n.mineurs, resume: n.resume })),
-    autocollants: `${dossier}/autocollants/planche.png, à valider par l'utilisateur`,
-  })}`, { label: 'Rapport · etapes.md', phase: 'Rapport', agentType: 'suivi', effort: 'low' })
-  return pause(rendu)
+// Le storyboard et la voix ne dépendent que du dialogue : ils se font en même temps.
+phase('Storyboard')
+const VOIX_SCHEMA = {
+  type: 'object',
+  properties: {
+    ok: { type: 'boolean', description: 'la transcription correspond au dialogue' },
+    duree: { type: 'number', description: 'durée totale de voix.mp3, en secondes' },
+    ecarts: { type: 'array', items: { type: 'string' } },
+    anglicismes: { type: 'array', items: { type: 'string' }, description: 'anglicismes absents du lexique, à faire écouter' },
+  },
+  required: ['ok', 'duree', 'ecarts', 'anglicismes'],
 }
-
-// Planche validée : la suite du passage.
-phase('Voix')
-// Le CLI ElevenLabs se fige quand plusieurs passages l'appellent en même temps (rafraîchissement de session, trousseau) :
-// la session principale produit alors les voix une à une, et args.voix porte son bilan ({ ok, duree, ecarts, anglicismes }).
-const voix = args.voix || await agent(`${AFK}\n\nProduis et vérifie la voix de ${dossier}.`, {
-  label: 'Voix · génération et transcription', phase: 'Voix', agentType: 'voix', schema: {
-    type: 'object',
-    properties: {
-      ok: { type: 'boolean', description: 'la transcription correspond au dialogue' },
-      duree: { type: 'number', description: 'durée totale de voix.mp3, en secondes' },
-      ecarts: { type: 'array', items: { type: 'string' } },
-      anglicismes: { type: 'array', items: { type: 'string' }, description: 'anglicismes absents du lexique, à faire écouter' },
-    },
-    required: ['ok', 'duree', 'ecarts', 'anglicismes'],
-  } })
+const [storyboard, voix] = await parallel([
+  () => noeud('Storyboard', 'storyboarder',
+  'Écris le storyboard du script validé.',
+  `Lis la checklist de .claude/skills/video-courte/SKILL.md, les règles de script.md, texte.md, animation.md et charte.md, puis ${dossier}/script.md, ${dossier}/dialogue.json et ${dossier}/storyboard.md. Le vérificateur contrôle les repères de synchro (présents dans dialogue.json, dans l'ordre, une fois chacun). Juge d'abord la règle « L'image suit la voix » : à chaque repère, l'image prévue montre-t-elle, en mouvement, l'action que dit la phrase, puis ce mouvement s'efface-t-il ; un objet sans rapport avec la phrase dite est bloquant. Puis la section « Mouvement » d'animation.md : un seul geste à la fois (sauf la collision), seul bouge ce qui sert le concept. Les durées et les tenues ne se jugent pas ici : la voix n'existe pas encore, elles se calent à l'animation sur la voix réelle. Puis : la checklist sur le papier ; le texte à l'écran limité au sujet, aux valeurs du schéma et au code, sans mot-clé de conclusion ; le schéma prévu remplit sa zone (animation.md, « Place du schéma ») ; un seul tremblement d'écran ; tout le schéma en SVG ; la pose de la mascotte selon qui parle.`),
+  // Le CLI ElevenLabs se fige quand plusieurs passages l'appellent en même temps : la session principale peut alors
+  // produire les voix une à une, et args.voix porte son bilan.
+  () => args.voix || agent(`${AFK}\n\nProduis et vérifie la voix de ${dossier}.`, {
+    label: 'Voix · génération et transcription', phase: 'Voix', agentType: 'voix', schema: VOIX_SCHEMA }),
+])
 // Sans voix, rien ne se juge en aval : le passage s'arrête et le dit, au lieu d'animer et de critiquer à vide.
 if (!voix || !voix.duree) {
   log('Voix : aucune voix produite, arrêt du passage')
   phase('Rapport')
-  await agent(`Bilan de la seconde partie du passage AFK de ${dossier}, arrêtée au nœud voix, faute de voix produite : ${JSON.stringify({ sujet, dossier, voix })}`,
+  await agent(`Bilan du passage AFK de ${dossier}, arrêté au nœud voix, faute de voix produite : ${JSON.stringify({ sujet, dossier, voix, noeuds: [script, storyboard].map(n => ({ nom: n.nom, valide: n.valide, retours: n.retours, mineurs: n.mineurs, resume: n.resume })) })}`,
     { label: 'Rapport · etapes.md', phase: 'Rapport', agentType: 'suivi', effort: 'low' })
   return { sujet, dossier, arret: 'voix', voix }
 }
 if (!voix.ok) log(`Voix : écarts de transcription restants (${voix.ecarts.length})`)
 
+
 phase('Animation')
-const REGLES_ANIMATION = `Le vérificateur donne les repères et la phrase dite à chacun, les couleurs hors charte, les éléments hors des zones sûres, l'emprise du schéma, les textes sous 48 px, les temps morts du schéma, les gestes qui se chevauchent, les gestes avant que la mascotte parle, les apparitions trop serrées et les traits qui touchent un autocollant. Regarde ensuite, à l'aveugle, ${dossier}/captures.png puis chaque séquence de ${dossier}/sequences/ (une par repère, dans l'ordre du vérificateur, quatre instants de −0,1 à +1 s) : décris ce que montre chacune et compare à la phrase dite. Lis seulement après .claude/skills/video-courte/animation.md, texte.md, charte.md, ${dossier}/storyboard.md et ${dossier}/index.html. Juge : l'image suit la voix, en mouvement, sur son mot (la voix prime sur la tenue d'un état), et aucun temps mort pendant une explication ; le schéma remplit sa zone (animation.md, « Place du schéma ») : une emprise sous l'attendu du vérificateur est bloquante ; un seul geste à la fois, sauf la collision (un chevauchement relevé par le vérificateur peut être la fin d'un même geste : tranche sur les séquences) ; les courbes et durées du tableau d'animation.md, anticipation comprise ; les éléments restent séparés et lisibles ; le texte tient dans les zones sûres, à 48 px au moins, net et immobile après son entrée ; les objets du schéma sont les autocollants de ${dossier}/autocollants/, posés par colle() ; les sous-titres du gabarit sont là, sur deux lignes au plus, sans toucher le schéma ; la mascotte est à la place d'animation.md, dans la pose de celui qui parle ; les couleurs et les polices sont celles de la charte.`
-// Les retours que le storyboard n'a pas soldés sont dans etapes.md, écrit à la fin de la première partie.
-const restes = `\n\nLes retours du storyboard encore ouverts sont dans ${dossier}/etapes.md ; règle-les dans l'animation.`
+const REGLES_ANIMATION = `Le vérificateur donne les repères et la phrase dite à chacun, les couleurs hors charte, les éléments hors des zones sûres, l'emprise du schéma, les textes sous 48 px, les temps morts du schéma, les gestes qui se chevauchent, les gestes avant que la mascotte parle, les apparitions trop serrées et les traits qui touchent un autocollant (s'il y en a). Regarde ensuite, à l'aveugle, ${dossier}/captures.png puis chaque séquence de ${dossier}/sequences/ (une par repère, dans l'ordre du vérificateur, quatre instants de −0,1 à +1 s) : décris ce que montre chacune et compare à la phrase dite. Lis seulement après .claude/skills/video-courte/animation.md, texte.md, da-manar.md, ${dossier}/storyboard.md et ${dossier}/index.html. Juge : l'image suit la voix, en mouvement, sur son mot (la voix prime sur la tenue d'un état), et aucun temps mort pendant une explication ; le schéma remplit sa zone (animation.md, « Place du schéma ») : une emprise sous l'attendu du vérificateur est bloquante ; un seul geste à la fois, sauf la collision (un chevauchement relevé par le vérificateur peut être la fin d'un même geste : tranche sur les séquences) ; les courbes et durées du tableau d'animation.md, anticipation comprise ; les éléments restent séparés et lisibles ; le texte tient dans les zones sûres, à 48 px au moins, net et immobile après son entrée ; le schéma est en SVG tracé (ou en autocollants posés par colle() si le storyboard en demande) ; les sous-titres du gabarit sont là, sur deux lignes au plus, sans toucher le schéma ; la mascotte est à la place d'animation.md, dans la pose de celui qui parle ; les couleurs et les polices sont celles de la DA Manar Studio (da-manar.md).`
+const restes = storyboard.retours.length
+  ? `\n\nLe storyboard garde ces retours ouverts ; règle-les dans l'animation :\n- ${storyboard.retours.join('\n- ')}`
+  : ''
 const animation = await noeud('Animation', 'animateur', `Construis l'animation du storyboard validé, puis ses contrôles.${restes}`,
-  REGLES_ANIMATION + restes.replace("règle-les dans l'animation", "vérifie d'abord qu'ils sont réglés"), REVISION)
+  REGLES_ANIMATION, REVISION, storyboard.retours)
 
 phase('Rendu final')
 const exporter = () => agent(`${AFK}\n\nExporte la vidéo et ses images de contrôle.`,
@@ -164,14 +162,15 @@ for (let tour = 0; ; tour++) {
 
 const bilan = {
   sujet, dossier, video: `${dossier}/video.mp4`,
-  noeuds: [animation].map(n => ({ nom: n.nom, valide: n.valide, retours: n.retours, mineurs: n.mineurs, resume: n.resume })),
+  exactitude: exact && { valide: !exact.bloquants.length, retours: exact.bloquants, mineurs: exact.mineurs, resume: exact.resume },
+  noeuds: [script, storyboard, animation].map(n => ({ nom: n.nom, valide: n.valide, retours: n.retours, mineurs: n.mineurs, resume: n.resume })),
   voix: voix && { ok: voix.ok, duree: voix.duree, ecarts: voix.ecarts },
   rendu: final && { valide: !final.bloquants.length, retours: final.bloquants, mineurs: mineursRendu, resume: final.resume },
   aEcouter: (voix && voix.anglicismes) || [],
 }
 
 phase('Rapport')
-await agent(`Bilan de la seconde partie du passage AFK de ${dossier}, après la validation de la planche d'autocollants par l'utilisateur : ${JSON.stringify(bilan)}`,
+await agent(`Bilan du passage AFK de ${dossier} : ${JSON.stringify(bilan)}`,
   { label: 'Rapport · etapes.md', phase: 'Rapport', agentType: 'suivi', effort: 'low' })
 
 return bilan
