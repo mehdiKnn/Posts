@@ -2,12 +2,12 @@
 
 ## Le format : un cours sur la feuille
 
-La mascotte de la thématique fait cours sur une feuille à petits carreaux qui remplit l'écran, où le sujet est écrit ; une voix d'élève, hors champ, l'interpelle.
+La mascotte de la thématique fait cours sur un papier à pois qui remplit l'écran, où le sujet est écrit ; une voix d'élève, hors champ, l'interpelle.
 
 - **Durée** : 30 à 45 s. Le nombre de mots en découle : durée × débit des voix, noté dans la [charte](charte.md). Avec la taupe (2,3 mots/s), environ 70 à 100 mots.
 - **Beats**, 5 au plus :
   1. **Idée fausse** (3 s au plus) : l'élève avance, en question, l'idée fausse qu'on se fait du sujet (« M'sieur, il suffit pas de… ? »). La mascotte est sur la feuille, le sujet y est écrit.
-  2. **Mécanisme** : la mascotte réfute l'idée fausse dès ses premiers mots, et le schéma se dessine sur la feuille, comme tracé au feutre : il montre le mécanisme, et pourquoi l'idée fausse ne tient pas.
+  2. **Mécanisme** : la mascotte réfute l'idée fausse dès ses premiers mots, et le schéma se dessine sur la feuille, comme tracé au trait : il montre le mécanisme, et pourquoi l'idée fausse ne tient pas.
   3. **Relance**, facultative : l'élève pose la question qui mène à la solution (« Et on fait comment ? »).
   4. **Solution** : le même schéma, modifié.
   5. **À retenir** : la mascotte énonce la règle, et le schéma la montre une dernière fois, sans texte ajouté.

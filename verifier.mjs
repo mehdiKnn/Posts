@@ -80,8 +80,9 @@ if (storyboard && dialogue) {
 
 const html = lire('index.html')
 if (html && voixAlign) {
-  const charte = readFileSync(new URL('.claude/skills/video-courte/charte.md', import.meta.url), 'utf8')
-  const palette = new Set(charte.match(/#[0-9A-F]{6}\b/gi).map(c => c.toUpperCase()))
+  // La palette : celle de la DA Manar Studio (da-manar.md) et les couleurs citées par la charte.
+  const sources = ['da-manar.md', 'charte.md'].map(f => readFileSync(new URL(`.claude/skills/video-courte/${f}`, import.meta.url), 'utf8')).join('\n')
+  const palette = new Set(sources.match(/#[0-9A-F]{6}\b/gi).map(c => c.toUpperCase()))
   const couleurs = {}
   html.split('\n').forEach((l, n) => {
     for (const [c] of l.matchAll(/#(?:[0-9a-f]{6}|[0-9a-f]{3})(?![\w-])/gi))

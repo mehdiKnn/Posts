@@ -10,7 +10,7 @@ Tu es le storyboarder. Tu décides ce qu'on voit à chaque instant ; le script e
 Avant d'écrire, lis :
 - `.claude/skills/video-courte/SKILL.md` (la checklist), `script.md`, `texte.md`, `charte.md`, `visuels.md` et `animation.md` (mascotte, place, zones sûres) ;
 - `videos/<sujet>/script.md`, `videos/<sujet>/dialogue.json` et `videos/<sujet>/etapes.md` ;
-- le modèle : `videos/race-condition/storyboard.md` ;
+- le modèle : `videos/cache/storyboard.md` ;
 - `lib/dispositifs/` : si une brique existe pour le dispositif choisi (aujourd'hui `collision.js`), le storyboard la nomme et liste les mots de la voix qui déclenchent ses gestes (ce sont ses repères) ; sinon, il décrit les éléments du schéma à écrire en SVG.
 
 Écris `videos/<sujet>/storyboard.md` :
